@@ -1,0 +1,4 @@
+- insert:
+    - id: local-anki-workspace
+      name: '@local/dsh-anki-workspace'
+      config: {}

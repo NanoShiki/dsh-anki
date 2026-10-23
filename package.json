@@ -1,0 +1,39 @@
+{
+  "name": "@local/dsh-anki-workspace",
+  "version": "1.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Native DSH Anki workspace with isolated headless Anki core and shared AI operations.",
+  "license": "AGPL-3.0-or-later",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js", "auto-sync.js", "worker-client.js", "client.js", "backend/*.py", "runtime/**",
+    "cordis.patch.yml", "locale/*.json", "icon.svg", "README.md", "LICENSE", "THIRD-PARTY-NOTICES.md", "ANKI-LICENSE.txt", "VERIFICATION.md", "ACCEPTANCE.md", "runtime-sha256.json", "scripts/setup_runtime.py"
+  ],
+  "scripts": {
+    "test:client": "node --test tests/worker-client.test.mjs tests/client.test.mjs tests/auto-sync.test.mjs tests/client-sync.test.mjs tests/client-decks.test.mjs",
+    "test:backend": "runtime/python.exe -m unittest discover -s tests -p test_*.py -v"
+  },
+  "dependencies": { "@deepseek-ai/schemastery": "~3.18.5" },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-tools": "0.2.1-rc.2",
+    "@deepseek-ai/dsh-typert-protocol": "0.2.1-rc.2"
+  },
+  "engines": { "dsh": "^0.2.1-rc.2" },
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar"
+      ]
+    }
+  }
+}
