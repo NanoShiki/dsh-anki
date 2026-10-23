@@ -2,19 +2,23 @@
 
 A native DSH sidebar and `anki` AI tool sharing **one independent, per-DSH-profile collection**, powered by real headless Anki. No Anki desktop window, AnkiConnect, Qt, or replacement web server is started. Independent integration, not an official Anki product.
 
-原生 DSH 侧栏与 AI 共用**当前 DSH 配置专属的独立牌库**，使用真实 Anki 核心，不启动 Anki 桌面程序。**1.2.1 将插件包名统一为 `@local/dsh-anki`；保留默认「问答题（输入答案）」笔记、带范围预览与确认的删除牌组入口、布局修复和 AnkiWeb 同步。**
+原生 DSH 侧栏与 AI 共用**当前 DSH 配置专属的独立牌库**，使用真实 Anki 核心，不启动 Anki 桌面程序。**1.2.2 修复页面高度与嵌套滚动：页面适应 DSH 可用空间，搜索结果、编辑区和其他标签内容在内部滚动，无需再滚动整个 Anki 页面找列表底部。** 包名保持 `@local/dsh-anki`；默认输入答案笔记、受保护的删除牌组和 AnkiWeb 同步不变。
 
 ## Install / 安装与升级
 
 Target: Windows x64, DSH `^0.2.1-rc.2`, bundled CPython 3.13.5; external Anki **26.05**, build `e64c6b1a` (`e64c6b1aee3e8d668fb8bbe084beada8e070d985`). Anki core is **not bundled**; default `ankiPackages` is `D:/Anki/app_packages`.
 
+**Already on `@local/dsh-anki` 1.2.1?** Wait for sync to finish, disable it and wait for its worker to exit, back up the complete data directory, then update the same package using `D:/Anki/dsh-anki-1.2.2.tgz`. Preserve the existing configuration and data directory; re-enable and follow the manager's refresh/restart instructions. This update changes layout, not your collection. Below are the additional precautions only for migrating from the former package name.
+
+**已安装 `@local/dsh-anki` 1.2.1：** 等待同步结束，禁用插件并等后台退出，备份整个数据目录，再用 `D:/Anki/dsh-anki-1.2.2.tgz` 更新同名插件；保留原设置与数据目录，启用后按管理器提示刷新或重启。此更新不迁移或清空牌库。下面的改名步骤仅适用于旧包名。
+
 1. Wait for sync to finish. In the authenticated DSH **Plugins** manager, disable the old `@local/dsh-anki-workspace` and wait for its Python worker to exit; closing only its tab is insufficient. **Never enable old and new packages together:** both intentionally share the same service and collection.
 2. The rename is a **new package identity**, not an in-place upgrade. Record any custom `dataDir`, `ankiPackages` and `pythonPath` settings, and back up the entire data directory while stopped. Keep the old package disabled, or uninstall it through the manager **without deleting the data directory**.
-3. Import/apply `D:/Anki/dsh-anki-1.2.1.tgz` as `@local/dsh-anki`. Restore any custom settings, especially the exact same `dataDir`, before enabling it. Follow the manager's actual refresh/restart instructions; do not manually alter profile/package-manager files.
+3. Import/apply `D:/Anki/dsh-anki-1.2.2.tgz` as `@local/dsh-anki`. Restore any custom settings, especially the exact same `dataDir`, before enabling it. Follow the manager's actual refresh/restart instructions; do not manually alter profile/package-manager files.
 4. Open **Anki → 浏览 / Browse** and verify your expected decks and notes. Default data remains `<profileContext.dir>/data/anki-workspace` in the **same DSH profile**. The rename does not move/delete it, change the AI tool `anki`, or change the sidebar's Anki label.
 5. **Never point `dataDir` at an Anki desktop profile.** If installation is refused, preserve the manager's error instead of deleting your collection.
 
-先等待同步结束，在已登录的 DSH **插件管理器**中禁用旧包 `@local/dsh-anki-workspace`，等后台退出并备份整个数据目录。新包名是 `@local/dsh-anki`，会被视为另一个插件：旧包可保持禁用或通过管理器卸载，但**不要删除牌库目录，也不要同时启用新旧两包**。导入 `D:/Anki/dsh-anki-1.2.1.tgz`，将原自定义设置（尤其 `dataDir`）填回后再启用。在同一个 DSH 配置下，默认仍使用原来的 `data/anki-workspace`，不搬迁、不清空牌库；侧栏 Anki 和 AI 工具 `anki` 不变。按管理器实际提示刷新，不要手工修改配置或绕过认证。
+先等待同步结束，在已登录的 DSH **插件管理器**中禁用旧包 `@local/dsh-anki-workspace`，等后台退出并备份整个数据目录。新包名是 `@local/dsh-anki`，会被视为另一个插件：旧包可保持禁用或通过管理器卸载，但**不要删除牌库目录，也不要同时启用新旧两包**。导入 `D:/Anki/dsh-anki-1.2.2.tgz`，将原自定义设置（尤其 `dataDir`）填回后再启用。在同一个 DSH 配置下，默认仍使用原来的 `data/anki-workspace`，不搬迁、不清空牌库；侧栏 Anki 和 AI 工具 `anki` 不变。按管理器实际提示刷新，不要手工修改配置或绕过认证。
 
 **Verification boundary:** automated checks cover isolated native collections, localhost sync services, structural client interactions and a synthetic real-browser layout fixture. They do not establish that a particular live installation, real AnkiWeb account or cloud connection works. Use your existing authenticated DSH plugin manager and GUI, following its actual refresh/restart instructions; no replacement server or unverified HMR behavior is required. See the [live acceptance checklist](<ACCEPTANCE.md>) and [verification](<VERIFICATION.md>).
 

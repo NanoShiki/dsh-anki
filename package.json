@@ -1,6 +1,6 @@
 {
   "name": "@local/dsh-anki",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "private": true,
   "type": "module",
   "description": "Native DSH Anki workspace with isolated headless Anki core and shared AI operations.",

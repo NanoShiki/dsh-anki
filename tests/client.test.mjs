@@ -60,7 +60,7 @@ test('renamed package, native bundle and installer identity remain aligned', asy
   const manifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
   const patch = await readFile(new URL('../cordis.patch.yml', import.meta.url), 'utf8');
   assert.equal(manifest.name, '@local/dsh-anki');
-  assert.equal(manifest.version, '1.2.1');
+  assert.equal(manifest.version, '1.2.2');
   assert.equal(manifest.repository.url, 'git+https://github.com/NanoShiki/dsh-anki.git');
   assert.equal(fixture().bundle.id, manifest.name);
   assert.match(patch, /^\s+- id: local-anki$/m);
@@ -119,9 +119,10 @@ function layoutFixture() {
   const tree = flatten(f.render(values));
   const css = tree.find((node) => node.type === 'style').children.join('');
   const rule = (selector) => {
-    const start = css.indexOf(selector + '{');
-    assert.notEqual(start, -1, `missing rule ${selector}`);
-    return Object.fromEntries(css.slice(start + selector.length + 1).split('}')[0].split(';')
+    const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const match = css.match(new RegExp('(?:^|[}\\s])' + escaped + '\\{([^}]*)\\}'));
+    assert.ok(match, `missing rule ${selector}`);
+    return Object.fromEntries(match[1].split(';')
       .filter(Boolean).map((declaration) => {
         const colon = declaration.indexOf(':');
         return [declaration.slice(0, colon).trim(), declaration.slice(colon + 1).trim()];
@@ -142,6 +143,20 @@ test('fifty long result rows retain intrinsic height rather than shrinking into 
   assert.equal(rule('.dsh-anki-list')['overflow'], 'auto');
   assert.equal(rule('.dsh-anki-preview')['-webkit-line-clamp'], '2');
   assert.equal(rule('.dsh-anki-note-meta')['overflow-wrap'], 'anywhere');
+});
+
+test('workspace bounds its remaining-height scroll chain instead of scrolling the whole page', () => {
+  const { tree, rule } = layoutFixture();
+  assert.equal(rule('.dsh-anki').overflow, 'hidden');
+  for (const selector of ['.dsh-anki', '.dsh-anki-wrap', '.dsh-anki-layout', '.dsh-anki-main', '.dsh-anki-panel', '.dsh-anki-browse', '.dsh-anki-browser', '.dsh-anki-results', '.dsh-anki-list', '.dsh-anki-editor']) {
+    assert.equal(rule(selector)['min-height'], '0', `${selector} can shrink to its available height`);
+  }
+  assert.equal(rule('.dsh-anki-panel-browse').overflow, 'hidden');
+  assert.equal(rule('.dsh-anki-panel').overflow, 'auto');
+  assert.equal(rule('.dsh-anki-editor').overflow, 'auto');
+  assert.ok(tree.some((node) => node.props.className === 'dsh-anki-overview'));
+  assert.ok(tree.some((node) => node.props.className === 'dsh-anki-results'));
+  assert.ok(tree.find((node) => node.props.role === 'tabpanel').props.className.includes('dsh-anki-panel-browse'));
 });
 
 test('deletion confirmation wraps long full deck names without horizontal overflow', () => {

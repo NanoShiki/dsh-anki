@@ -30,7 +30,7 @@ for (const kind of ['old','new']) {
  const host = document.querySelector('.dsh-anki.' + kind);
  const contents = host.innerHTML;
  const root = host.attachShadow({mode:'open'});
- root.innerHTML = '<style>' + css[kind] + ':host{display:block}.dsh-anki{padding:0;height:auto;container-type:normal}' + '</style><div class="dsh-anki">' + contents + '</div>';
+ root.innerHTML = '<style>' + css[kind] + ':host{display:block}.dsh-anki{padding:0;height:600px;flex:none;container-type:normal}' + '</style><div class="dsh-anki">' + contents + '</div>';
 }
 const output={userAgent:navigator.userAgent};
 for(const kind of ['old','new']){
