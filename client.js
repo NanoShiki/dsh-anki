@@ -2,7 +2,7 @@
  * Locale dictionaries are inlined because this artifact has no bundler/runtime JSON loader.
  * Keep these dictionaries in sync with locale/en.json and locale/zh.json. */
 window.__ModuleLoader__.load({
-  id: '@local/dsh-anki-workspace',
+  id: '@local/dsh-anki',
   factory(require) {
     'use strict';
     const React = require('react');

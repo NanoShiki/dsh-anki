@@ -1,10 +1,11 @@
 {
-  "name": "@local/dsh-anki-workspace",
-  "version": "1.2.0",
+  "name": "@local/dsh-anki",
+  "version": "1.2.1",
   "private": true,
   "type": "module",
   "description": "Native DSH Anki workspace with isolated headless Anki core and shared AI operations.",
   "license": "AGPL-3.0-or-later",
+  "repository": { "type": "git", "url": "git+https://github.com/NanoShiki/dsh-anki.git" },
   "exports": {
     ".": "./index.js",
     "./client": "./client.js",
