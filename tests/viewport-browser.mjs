@@ -68,7 +68,7 @@ function workspaceMarkup(source, scenario) {
       revealed: { answer: '<p>Synthetic answer</p>', buttons: [1, 2, 3, 4].map((rating) => ({ rating, interval: `${rating} days` })) },
       importName: 'synthetic.apkg', exportName: 'synthetic-export.apkg', exportPath: '/synthetic/isolated-workspace/exports/synthetic-export.apkg', syncState: snapshot,
     },
-    SyncPanel: { snapshot, username: '', password: '', selection: { token: null, direction: '', consent: false } },
+    SyncPanel: { snapshot, username: '', password: '', selection: scenario === 'sync-full' ? { token: snapshot.pendingFull.token, direction: 'download', consent: false } : { token: null, direction: '', consent: false } },
     CardFrame: { document: { html: '<!doctype html><meta charset="utf-8"><body><p>Synthetic, inert card content.</p></body>', missing: false }, failure: false },
   };
   const React = {
@@ -212,6 +212,7 @@ function browserMeasurements() {
       }
     } else {
       const panel = root.querySelector('[role=tabpanel] > div:not([hidden])');
+      if (fixture.scenario === 'sync-full') check('full-sync warning, consent and disabled confirmation are rendered', !!panel.querySelector('.dsh-anki-full-sync [role=alert]') && !!panel.querySelector('.dsh-anki-full-sync input[type=checkbox]') && !!panel.querySelector('.dsh-anki-full-sync button.dsh-anki-primary[disabled]'));
       const targets = fixture.scenario === 'add' ? [panel.querySelector('button[type=submit]')]
         : fixture.scenario === 'review' ? [root.querySelector('.dsh-anki-review-footer'), ...root.querySelectorAll('.dsh-anki-rating')]
           : fixture.scenario === 'transfer' ? [...panel.querySelectorAll('button[type=submit]'), panel.querySelector('.dsh-anki-code')]
