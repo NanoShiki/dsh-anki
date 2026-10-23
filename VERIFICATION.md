@@ -1,4 +1,8 @@
-# Verification record — 1.3.0 / 2026-10-23
+# Verification record — 1.3.1 / 2026-10-23
+
+## 1.3.1 documentation-only release
+
+The README was rewritten to lead with Chinese and keep a condensed English summary at the end. Only `README.md`, `VERIFICATION.md` and the release version changed; `client.js`, both locale files, the backend, the worker, sync, the owner/AI routes, `cordis.patch.yml` and all 34 runtime files are byte-identical to 1.3.0, so the 1.3.0 client/browser evidence below still applies unchanged.
 
 ## 1.3.0 visual redesign
 
@@ -76,8 +80,8 @@ ELECTRON_RUN_AS_NODE=1 "D:/deepseekharness/DeepSeek Harness.exe" tests/host-smok
 Packaging/verification:
 
 ```text
-pnpm pack --out D:/Anki/dsh-anki-1.3.0.tgz
-runtime/python.exe tests/verify_release.py D:/Anki/dsh-anki-1.3.0.tgz
+pnpm pack --out D:/Anki/dsh-anki-1.3.1.tgz
+runtime/python.exe tests/verify_release.py D:/Anki/dsh-anki-1.3.1.tgz
 runtime/python.exe tests/review_redesign_release.py D:/Anki/dsh-anki-1.2.2.tgz D:/Anki/dsh-anki-1.3.0.tgz
 ```
 

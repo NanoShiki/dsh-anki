@@ -32,16 +32,10 @@ assert new_manifest.pop('version') == '1.3.0'
 assert old_manifest == new_manifest, 'identity, dependencies, installation and runtime contract unchanged'
 # Every file outside the UI/locales/release docs must remain byte-identical,
 # including all 34 pinned runtime files, backend, owner routes and AI tool.
-source = Path(__file__).resolve().parents[1]
-for name, content in new.items():
-    relative = PurePosixPath(name).relative_to('package')
-    assert source.joinpath(*relative.parts).exists(), f'missing source file: {name}'
-    assert not name.startswith('package/tests/')
-    if name == 'package/package.json':
-        # The packer reformats the manifest; compare its data, not its whitespace.
-        assert json.loads(content) == json.loads(source.joinpath('package.json').read_bytes()), 'archive manifest data differs from source'
-    else:
-        assert source.joinpath(*relative.parts).read_bytes() == content, f'archive/source mismatch: {name}'
+# This check is deliberately archive-to-archive: it stays valid for the fixed
+# 1.2.2 -> 1.3.0 pair after later releases change the working tree.
+for name in new:
+    assert not name.startswith('package/tests/'), name
 for language in ('en', 'zh'):
     before = json.loads(old[f'package/locale/{language}.json'])
     after = json.loads(new[f'package/locale/{language}.json'])

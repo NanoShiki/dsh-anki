@@ -1,67 +1,77 @@
 # dsh-anki / DSH Anki 工作区
 
-A native DSH sidebar and `anki` AI tool sharing **one independent, per-DSH-profile collection**, powered by real headless Anki. No Anki desktop window, AnkiConnect, Qt, or replacement web server is started. Independent integration, not an official Anki product.
+独立的 DSH 插件：原生 Anki 侧栏与 `anki` AI 工具共用**仅属于当前 DSH 配置的一份独立牌库**，由真实的无界面 Anki 核心驱动。不启动 Anki 桌面窗口、AnkiConnect、Qt 或替代 Web 服务。本项目是独立集成，不是 Anki 官方产品。
 
-原生 DSH 侧栏与 AI 共用**当前 DSH 配置专属的独立牌库**，使用真实 Anki 核心，不启动 Anki 桌面程序。**1.3.0 重做原生页面：浅色卡片、青绿色强调色、顶部统计与「牌组—搜索列表—编辑器」三栏布局；继续保持页面适应 DSH 高度、各区域独立滚动。** 包名保持 `@local/dsh-anki`；默认输入答案笔记、受保护的删除牌组和 AnkiWeb 同步不变。
+**1.3.0 重做了原生页面**：浅色卡片、青绿色强调色、顶部六格统计，以及「牌组 — 搜索列表 — 编辑器」三栏布局。页面仍然严格贴合 DSH 主面板的可用高度，搜索结果、编辑区、牌组区与其他标签页各自内部滚动；窄窗口下自动改为牌组横向条、结果与编辑器上下分栏。**1.3.1 仅把本文档改为中文为主**，插件行为与牌库数据没有任何变化。
 
-Version 1.3.0 refreshes the native page with a pale neutral canvas, teal accents, a six-stat strip and deck/results/editor panels. DSH owns its own navigation; the plugin does not duplicate it. Counts and statuses come from the actual collection, and existing native operations and internal scrolling remain supported.
+## 安装与升级
 
-## Install / 安装与升级
+**环境要求：** Windows x64、DSH `^0.2.1-rc.2`、内置 CPython 3.13.5；外部 Anki **26.05**，build `e64c6b1a`（`e64c6b1aee3e8d668fb8bbe084beada8e070d985`）。Anki 核心**不随包分发**，默认 `ankiPackages` 为 `D:/Anki/app_packages`。
 
-Target: Windows x64, DSH `^0.2.1-rc.2`, bundled CPython 3.13.5; external Anki **26.05**, build `e64c6b1a` (`e64c6b1aee3e8d668fb8bbe084beada8e070d985`). Anki core is **not bundled**; default `ankiPackages` is `D:/Anki/app_packages`.
+**已装同名包 `@local/dsh-anki` 的 1.2.x / 1.3.0：** 等待同步结束 → 在插件管理器中禁用插件并等后台 Python 进程退出 → 备份整个数据目录 → 用 `D:/Anki/dsh-anki-1.3.1.tgz` 更新同一个包 → 保留原有设置与数据目录 → 重新启用，并按管理器提示刷新或重启。本次只改文档，不迁移、不清空牌库。
 
-**Already on `@local/dsh-anki` 1.2.x?** Wait for sync to finish, disable it and wait for its worker to exit, back up the complete data directory, then update the same package using `D:/Anki/dsh-anki-1.3.0.tgz`. Preserve the existing configuration and data directory; re-enable and follow the manager's refresh/restart instructions. This update changes the page design only, not your collection. Below are the additional precautions only for migrating from the former package name.
+**从旧包名 `@local/dsh-anki-workspace` 迁移（一次性）：** 改名相当于换了一个新包身份，不能就地覆盖安装。
 
-**已安装 `@local/dsh-anki` 1.2.x：** 等待同步结束，禁用插件并等后台退出，备份整个数据目录，再用 `D:/Anki/dsh-anki-1.3.0.tgz` 更新同名插件；保留原设置与数据目录，启用后按管理器提示刷新或重启。此更新不迁移或清空牌库。下面的改名步骤仅适用于旧包名。
+1. 先等待同步结束，在已认证的 DSH **插件管理器**中禁用旧包，并等它的 Python 进程退出；只关闭标签页并不够。**绝不要同时启用新旧两个包**——两者会有意共用同一个服务和牌库。
+2. 记录自定义的 `dataDir`、`ankiPackages`、`pythonPath`，在停用状态下备份整个数据目录。旧包保持禁用，或通过管理器卸载，但**不要删除数据目录**。
+3. 导入 `D:/Anki/dsh-anki-1.3.1.tgz`，包名为 `@local/dsh-anki`；启用前把原自定义设置填回，尤其要保证 `dataDir` 完全一致。
+4. 打开「**Anki → 浏览**」确认牌组与笔记仍在。默认数据仍是**同一个 DSH 配置**下的 `<profileContext.dir>/data/anki-workspace`：改名不会搬迁或删除它，AI 工具 `anki` 与侧栏名称也都不变。
+5. **不要把 `dataDir` 指向 Anki 桌面版的配置目录。** 如果安装被拒绝，请保留管理器的错误信息，不要为了「修好」而删除牌库。
 
-1. Wait for sync to finish. In the authenticated DSH **Plugins** manager, disable the old `@local/dsh-anki-workspace` and wait for its Python worker to exit; closing only its tab is insufficient. **Never enable old and new packages together:** both intentionally share the same service and collection.
-2. The rename is a **new package identity**, not an in-place upgrade. Record any custom `dataDir`, `ankiPackages` and `pythonPath` settings, and back up the entire data directory while stopped. Keep the old package disabled, or uninstall it through the manager **without deleting the data directory**.
-3. Import/apply `D:/Anki/dsh-anki-1.3.0.tgz` as `@local/dsh-anki`. Restore any custom settings, especially the exact same `dataDir`, before enabling it. Follow the manager's actual refresh/restart instructions; do not manually alter profile/package-manager files.
-4. Open **Anki → 浏览 / Browse** and verify your expected decks and notes. Default data remains `<profileContext.dir>/data/anki-workspace` in the **same DSH profile**. The rename does not move/delete it, change the AI tool `anki`, or change the sidebar's Anki label.
-5. **Never point `dataDir` at an Anki desktop profile.** If installation is refused, preserve the manager's error instead of deleting your collection.
+**验证边界：** 自动化检查覆盖隔离的原生牌库、本地回环同步服务、客户端结构交互，以及合成状态下的真实浏览器布局。它们不能证明某个具体安装、真实 AnkiWeb 账号或云端连接可用。请使用你已认证的插件管理器与 GUI，按它实际提示刷新/重启；不需要替换服务器，也不依赖未经验证的热更新行为。实时验收清单见 [ACCEPTANCE.md](<ACCEPTANCE.md>)，测试记录见 [VERIFICATION.md](<VERIFICATION.md>)。
 
-先等待同步结束，在已登录的 DSH **插件管理器**中禁用旧包 `@local/dsh-anki-workspace`，等后台退出并备份整个数据目录。新包名是 `@local/dsh-anki`，会被视为另一个插件：旧包可保持禁用或通过管理器卸载，但**不要删除牌库目录，也不要同时启用新旧两包**。导入 `D:/Anki/dsh-anki-1.3.0.tgz`，将原自定义设置（尤其 `dataDir`）填回后再启用。在同一个 DSH 配置下，默认仍使用原来的 `data/anki-workspace`，不搬迁、不清空牌库；侧栏 Anki 和 AI 工具 `anki` 不变。按管理器实际提示刷新，不要手工修改配置或绕过认证。
+源码仓库：[NanoShiki/dsh-anki](https://github.com/NanoShiki/dsh-anki)。
 
-**Verification boundary:** automated checks cover isolated native collections, localhost sync services, structural client interactions and a synthetic real-browser layout fixture. They do not establish that a particular live installation, real AnkiWeb account or cloud connection works. Use your existing authenticated DSH plugin manager and GUI, following its actual refresh/restart instructions; no replacement server or unverified HMR behavior is required. See the [live acceptance checklist](<ACCEPTANCE.md>) and [verification](<VERIFICATION.md>).
+## 登录与同步
 
-Source repository: [NanoShiki/dsh-anki](https://github.com/NanoShiki/dsh-anki).
+- 账号密码**只在仅所有者可见的同步页**输入，不要发到聊天里。密码是临时的，提交后即从表单清除；可复用的登录令牌与设置通过 **Windows 当前用户 DPAPI** 加密保存，并额外绑定工作区路径，没有明文降级。换一个 Windows 用户或换路径可能需要重新登录；退出登录会删除已存令牌。本插件不读取其它 Anki 安装的凭据。
+- **立即同步**会先做原生牌库同步、再做原生媒体同步，并显示进度、支持取消。完成时间戳只在两者都成功后才写入。原生任务占用牌库期间其它操作不可用，但状态查询与取消始终保持响应。
+- **自动同步默认开启**，页面上有可见开关。宿主会在启动/登录后、编辑或复习成功后约 15 秒空闲时、以及大约每 5 分钟各调度一次；存在未处理的复习卡片时会推迟，直到作答或离开。离线失败会退避；它不依赖你停留在同步页，客户端计时器只读取状态。
+- **任何全量上传/下载都会停下来等待明确确认。** 页面会显示允许的方向与本地笔记数，并且必须勾选「覆盖警告」。本地库为空且在允许时会推荐下载。确认会过期且只能使用一次；**AI 与自动同步都不能替你确认方向**。
+- 两个全量方向都会先把稳定的**本地牌库、媒体与媒体库**（不含账号凭据）快照到私有的 `backups` 目录。**本地备份救不回被覆盖的云端数据。** 全量上传会替换云端牌库，全量下载会替换本地牌库，请特别在首次登录时谨慎选择。
+- 失败或取消可能留下**部分完成的本地或云端改动**，取消不等于回滚；重试前先查看状态与备份。鉴权被拒会清除已保存的登录；普通的离线/网络失败会保留受保护的令牌。
+- 同步会保留编辑中的草稿，但可能改变它们的版本。版本过期的草稿需要先重新加载笔记再保存；重新加载会丢弃该草稿。后台也会拒绝过期的笔记修订。
 
-## AnkiWeb / 登录与同步
+## 牌库操作
 
-- Enter your AnkiWeb username/email and password **only in the owner-only Sync page**, never in chat. Password is transient and cleared from the form on submission. A reusable authentication token and settings are saved using **Windows current-user DPAPI**, additionally bound to the workspace path; no plaintext fallback. Another Windows user/path may require signing in again. Logout removes the stored token. This does not read another Anki installation's credentials.
-- **Sync now** performs native collection sync followed by native media sync and shows progress/cancellation. The completion timestamp is set only after both succeed. The collection is unavailable for other operations while a native job owns it; status/cancel remain responsive.
-- **Automatic sync is enabled by default**, with a visible checkbox. The Host schedules it on startup/after login, after approximately 15 idle seconds following successful edits/reviews, and periodically around five minutes. Outstanding review cards defer automatic sync until answered/left. Offline failures back off; it does not depend on keeping the Sync tab open. Client timers only read status.
-- **Any full upload/download stops for explicit confirmation.** The page shows allowed directions and local note count, and requires an overwrite-warning checkbox. An empty local library recommends downloading when permitted. Confirmation expires and can be used once; AI and automatic sync cannot confirm a direction.
-- Both full directions first close and snapshot the stable **local collection, media and media database**, without account credentials, into the private `backups` folder. **A local backup cannot restore overwritten cloud data.** Full upload replaces the cloud collection; full download replaces this local collection. Review this choice carefully, especially on first login.
-- Failed/cancelled sync can have **partially completed local or cloud changes**; cancellation is not rollback. Inspect status/backups before retrying. Authentication rejection clears saved login; ordinary offline/network failure retains the protected token.
-- Sync preserves editor drafts but may change their versions. Reload the note before saving a stale draft; reloading discards that draft. The worker also rejects stale note revisions.
+- 牌组可新建、重命名；支持原生 Anki 笔记类型与搜索语法；可添加/编辑笔记与标签、暂停/恢复卡片。添加笔记默认优先**问答题（输入答案）**，也能识别改名后的输入答案模板；已有的手动选择在刷新后保持不变。若该类型不存在，会优先普通 Basic/问答题而不是图片遮罩；**不会自动新建或重命名任何笔记类型**。
+- 删除牌组：先选中牌组，再点重命名下方的「**删除牌组…**」。仅所有者可用的确认预览会列出受影响的根牌组/子牌组、将要删除的卡片与孤立笔记，以及只是被退回原牌组的筛选牌组卡片；需输入**完整牌组名**确认。**普通牌组删除会删掉它的卡片（包括临时在筛选牌组中的卡片）；删除筛选牌组只是退回卡片。在别处仍有卡片的笔记以及媒体文件会保留。** Anki 的 ID-1 默认牌组、以及包含它的父牌组，不能在这里删除。
+- **需要的话，删除前先导出 APKG 备份。** 删除**不能用复习撤销**恢复；开启自动同步时还可能传播到 AnkiWeb。取消预览不会改变任何东西。确认是一次性的、五分钟后过期，牌组范围变化即拒绝执行；出错后请重新打开预览。同步/全量同步的限制同样适用。本插件不提供单独的「删除笔记」动作。
+- 复习只针对**选定的具体牌组**（含子牌组，遵循原生每日上限），没有全牌组复习器。先显示答案，再选 Again/Hard/Good/Easy。撤销只作用于本后台会话中最近一次可撤销的复习；重启或同步会让临时复习令牌失效，但不会影响已保存的排程。
+- 界面与 AI 共用同一后端。AI 编辑笔记时必须先取回笔记，并把不透明的 `modified` 作为 `expectedModified` 传回，否则会被拒绝。
+- 导入：把 `.apkg` 放进 `status.importsDir`，只传**文件名**；导入前有原生牌库备份，按合并处理。导出：在 `status.exportsDir` 生成新包，**绝不覆盖**已存在的导出文件。
+- 媒体只接受文件名、限制扩展名与类型、单次响应上限 5 MiB。生成的 LaTeX 被禁用；复习器 HTML 禁用脚本并做沙箱隔离。不支持插件（add-ons）、复习器自定义 JavaScript 或 MathJax，复杂模板的显示可能与 Anki 桌面版不同。
 
-请只在**同步页**输入账号密码，不要发到聊天中。登录凭据通过 Windows DPAPI 加密保存，无明文降级；退出登录会清除令牌。登录后可手动或自动同步牌库、复习进度及媒体。**首次空库如提示全量同步，应核对后选择从 AnkiWeb 下载；绝不会自动确认全量方向。** 全量上传会覆盖云端，本地备份救不回被覆盖的云端数据。失败/取消不代表整体回滚；同步后已有编辑草稿会保留，但需要重新加载笔记再保存。
+## 权限
 
-## Collection operations / 牌库操作
+AI 的读取操作（含 `sync.status`）在只读模式下即可工作。**修改、导出、`review.next`、`sync.run` 与 `sync.cancel` 需要 `danger-full-access`**，因为私有牌库位于对话工作区之外。工具既不会主动申请，也不会绕过授权；没有你的明确意图，不要评分或同步。
 
-- Create/rename decks; native Anki note types/search; add/edit notes/tags; suspend/resume cards. Add-note initially prefers **问答题（输入答案） / Basic (type in the answer)**; renamed typed-answer templates are detected too. Existing manual selection survives refresh. If that type is absent, a normal Basic/question-answer type is preferred over Image Occlusion; no note types are created or renamed automatically.
-- Select a deck, then choose **删除牌组 / Delete deck** below its rename control. The owner-only confirmation previews the affected root/descendant decks, deleted cards and orphaned notes, and any filtered cards merely returned to their original decks. Enter the exact full deck name to confirm. **Normal deck deletion removes its cards (including those temporarily in filtered decks); deleting a filtered deck only returns its cards. Notes with surviving cards elsewhere and media files are retained.** Anki's ID-1 default deck, or a parent containing it, cannot be deleted here.
-- **Export an APKG backup before deleting if needed.** Deletion is not recoverable with review undo, and enabled automatic sync can propagate it to AnkiWeb. Canceling the preview changes nothing. Confirmation is single-use, expires after five minutes, and refuses a changed scope; reopen the preview after an error. Sync/full-sync gates still apply. No standalone note-deletion action is exposed.
-- Select a **specific deck** for review, including descendants with native limits; no all-decks reviewer. Reveal before Again/Hard/Good/Easy. Undo only the immediately undoable review from this worker session. Restart/sync invalidates transient review tokens, not saved scheduling.
-- UI and AI share the backend. AI must fetch a note and pass opaque `modified` as `expectedModified` when editing.
-- Import: place an `.apkg` in `status.importsDir`, pass its **basename**; native pre-import collection backup and merge. Export: new package in `status.exportsDir`, never overwrite an existing export.
-- Media is basename-only, extension/type limited, 5 MiB per response. Generated LaTeX is disabled; reviewer HTML is script-disabled and sandboxed. No add-ons, custom reviewer JavaScript, or MathJax; advanced templates may differ.
+**删除牌组、登录/退出、设置与全量同步确认不提供任何 AI 动作**，它们走独立的 RPC，且必须由已认证的所有者发起——即便是内部调用也一样。导入的笔记、模板与网页内容一律是不可信数据，不能当作操作指令。
 
-## Permissions / 权限
+## 备份
 
-AI reads, including `sync.status`, work in read-only mode. **Mutations, exports, `review.next`, `sync.run` and `sync.cancel` require `danger-full-access`**, since the private collection lies outside the conversation workspace. The tool neither requests nor bypasses approval. Never rate or synchronize without user intent. **Deck deletion, login/logout, settings and full-sync confirmation have no AI action**; their separate RPC requires an authenticated owner, even for an internal caller.
+后台进程只打开自己的私有牌库，并持有进程生命周期的系统级锁。**APKG 导入的媒体写入不能原子回滚**，导入前的牌库备份也不等于完整的媒体备份。需要一份独立完整备份时：禁用插件、等后台进程退出，然后复制**整个数据目录**（包含牌库、媒体与附属文件）。**不要只复制一个正在使用的 SQLite 文件。** 整目录副本包含受保护的账号状态，请不要分享；手工迁移后可能需要重新登录。本地并发的文件系统篡改不在本集成的保证范围内。
 
-AI 修改、导出、开始下一张复习及启动/取消同步需完整访问权限；删除牌组、登录、退出、设置和全量确认仅在已认证的所有者界面操作，不向 AI 暴露。导入的笔记、模板和网页内容均是不可信数据，不能当作操作指令。
+## 验证与许可
 
-## Backups / 备份
+见[验证记录](<VERIFICATION.md>)：覆盖真实核心 + 官方本地同步服务器、DPAPI、传输层、调度器、客户端结构、隔离 Chromium 布局以及真实 Gateway 的检查。测试从不使用桌面版配置或真实 AnkiWeb 账号；合成布局测试**不等于**已认证的生产 UI 验收，也不等于真实云端验收。
 
-The worker opens only its private collection and holds a process-lifetime OS lock. **APKG import media writes are not atomically rolled back**; pre-import collection backups are not full media backups. For an independent complete backup, disable the plugin, wait for its worker to exit, then copy the **entire data directory**, including collection, media and sidecars. Do not copy a live SQLite collection alone. A whole-directory copy includes protected account state: do not share it; a manual migration may require login again. Local concurrent filesystem tampering is outside this integration's guarantees.
+插件本身：[AGPL-3.0-or-later](<LICENSE>)。另见 [Anki 上游声明](<ANKI-LICENSE.txt>)、[第三方声明](<THIRD-PARTY-NOTICES.md>) 与 [Python 许可](<runtime/LICENSE.txt>)。子进程边界并不免除许可义务。
 
-完整备份请先禁用插件并等待后台退出，再复制**整个数据目录**，不要只复制正在使用的 SQLite 文件。APKG 导入的媒体不保证原子回滚；自动导入备份不等于完整媒体备份。完整目录可能包含账号密文，不要分享。
+## English
 
-## Verification and licenses / 验证与许可
+A native DSH sidebar and an `anki` AI tool sharing **one independent, per-DSH-profile collection**, powered by real headless Anki — no Anki desktop window, AnkiConnect, Qt or replacement web server is started. Independent integration, not an official Anki product. Version 1.3.1 is a documentation change only; 1.3.0 redesigned the page with a pale canvas, teal accents, a six-stat strip and deck/results/editor panels, while keeping the page bounded to the DSH main slot with internal scrolling.
 
-See [verification record](<VERIFICATION.md>) for real-core/official-local-syncserver, DPAPI, transport, scheduler, structural UI, isolated Chromium layout and actual Gateway checks. Tests never use a desktop profile or a real AnkiWeb account. Synthetic layout tests are **not** authenticated production UI or real-cloud acceptance.
+**Requirements:** Windows x64, DSH `^0.2.1-rc.2`, bundled CPython 3.13.5, and an external Anki **26.05** build `e64c6b1a` (default `ankiPackages`: `D:/Anki/app_packages`). The Anki core is not bundled.
 
-Plugin: [AGPL-3.0-or-later](<LICENSE>). See [Anki upstream notice](<ANKI-LICENSE.txt>), [third-party notices](<THIRD-PARTY-NOTICES.md>) and [Python license](<runtime/LICENSE.txt>). A subprocess boundary does not remove license obligations.
+**Upgrade:** wait for sync, disable the plugin and let its Python worker exit, back up the whole data directory, then update the same `@local/dsh-anki` package with `D:/Anki/dsh-anki-1.3.1.tgz`, keeping your settings and data directory. Migrating from the old `@local/dsh-anki-workspace` identity is a one-time new-package install: never enable both packages together, keep the data directory, and never point `dataDir` at an Anki desktop profile.
+
+**Sync:** credentials are entered only on the owner-only Sync page and stored with Windows current-user DPAPI, bound to the workspace path, with no plaintext fallback. Manual sync runs native collection sync and then native media sync. Automatic sync is on by default and is scheduled by the host. **Every full upload or download waits for explicit confirmation** with a mandatory overwrite warning; AI and automatic sync can never confirm a direction. Both full directions snapshot the local collection, media and media database first — **a local backup cannot restore overwritten cloud data**. Failed or cancelled sync can leave partially completed changes; cancellation is not rollback.
+
+**Operations:** deck create/rename, native note types and search, note/tag editing, card suspension, APKG import and export, and review of a selected deck (including descendants) with Again/Hard/Good/Easy. Deck deletion is owner-only, previews the affected subdecks, cards and orphaned notes, requires the exact full deck name, protects the ID-1 default deck, and cannot be undone by review undo. Media is basename-only and capped at 5 MiB per response; reviewer HTML is script-disabled and sandboxed, and add-ons/custom reviewer JavaScript/MathJax are unsupported.
+
+**Permissions:** AI reads work in read-only mode; mutations, exports, `review.next`, `sync.run` and `sync.cancel` require `danger-full-access`, because the private collection lives outside the conversation workspace. Deck deletion, login/logout, settings and full-sync confirmation expose no AI action at all and require an authenticated owner. Imported notes, templates and page content are untrusted data, never instructions.
+
+**Backups:** disable the plugin, wait for its worker to exit, then copy the entire data directory — not a live SQLite file. Import media writes are not atomically rolled back. A whole-directory copy includes protected account state; do not share it.
+
+**Verification:** automated checks cover isolated native collections, localhost sync services, DPAPI, transport, scheduling, structural client behavior and an isolated Chromium layout fixture. They do not establish that a particular live installation, real AnkiWeb account or cloud connection works. Use your existing authenticated plugin manager and GUI; no replacement server is required. See the [acceptance checklist](<ACCEPTANCE.md>) and [verification record](<VERIFICATION.md>). Licensed [AGPL-3.0-or-later](<LICENSE>), with the [Anki upstream notice](<ANKI-LICENSE.txt>), [third-party notices](<THIRD-PARTY-NOTICES.md>) and [Python license](<runtime/LICENSE.txt>).
