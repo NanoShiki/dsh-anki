@@ -176,5 +176,10 @@
   "syncBackup": "上次本地备份",
   "syncDecisionBanner": "同步需要你明确选择全量上传或下载，收藏更改及复习已暂停。",
   "syncOpen": "打开同步",
-  "syncChanged": "同步可能已更改收藏。编辑草稿仍保留，但其版本已过期。请重新加载笔记后再保存；重新加载会丢弃当前草稿。"
+  "syncChanged": "同步可能已更改收藏。编辑草稿仍保留，但其版本已过期。请重新加载笔记后再保存；重新加载会丢弃当前草稿。",
+  "manageDecks": "管理牌组",
+  "savedState": "已保存",
+  "unsaved": "未保存草稿",
+  "reloadRequired": "需要重新加载",
+  "collectionReady": "已打开"
 }

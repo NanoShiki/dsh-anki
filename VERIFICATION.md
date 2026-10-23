@@ -1,4 +1,16 @@
-# Verification record — 1.2.2 / 2026-10-23
+# Verification record — 1.3.0 / 2026-10-23
+
+## 1.3.0 visual redesign
+
+The native page now uses the layout direction confirmed by the owner's reference image: pale neutral canvas, teal primary/active accents, a headline with sync and start-review shortcuts, a bordered six-stat strip, underline tab bar spanning the full workspace, and three rounded panels for decks, search results and the note editor. DSH's own left navigation is host-owned and is neither duplicated nor modified by the plugin.
+
+Every value shown is real collection data. The redesign adds no invented timestamps, no placeholder health/“connected” claims, no fake rich-text controls and no dead icon buttons. The editor still edits Anki HTML fields in textareas, tags remain a space-separated input, and the note context strip shows the actual deck, model and note ID. Deck creation, rename and deletion moved into toggle-revealed controls in the deck panel (`aria-expanded` plus real forms), so the deck list keeps its height; deletion keeps the owner-only preview token, exact-name confirmation, Default-deck protection and sync lockout. The engine/collection footer moved into the deck panel.
+
+Bounded height and internal scrolling are preserved and extended: the root remains `overflow:hidden` with a shrinkable flex/grid chain, results and editor scroll independently, pagination is outside the results scroller, and the deck panel, editor fields and other tabs scroll internally. Tabs now sit above the deck/results/editor region so they never consume list height. Below 1050 CSS px the results and editor stack; below 620 px the deck panel collapses to a horizontal rail whose controls replace the deck strip while expanded.
+
+**Full-workspace real-Chromium regression passed:** [viewport test](<tests/viewport-browser.mjs>) renders the actual registered Workspace and child components with deterministic React state stubs and the exact source CSS, without plugin-selector overrides. Eight states per viewport (browse, both expanded deck-control states, add, review, transfer, signed-out sync, full-sync confirmation) were measured at 1440×960, 470×960, 1100×600, and 1050×900 / 570×960 at 150%. CDP enforces the exact CSS viewport and DPR (browser-zoom emulation, not toolbar interaction). Checks prove the 50th row and the pager are visible after list-only scrolling, every editor field label and the save/suspend controls are internally reachable, the last deck and all expansion controls are reachable, and no document/host/whole-workspace overflow occurs. The immutable 1.2.1 commit `1e4c2698daea0d155ae96512db57a301c8b765da` still reproduces the original off-viewport failure. Generated reports, screenshots and profiles remain ignored and are not packaged. This is a synthetic bounded host shell, not the installed/authenticated DSH UI.
+
+Only `client.js`, `locale/en.json`, `locale/zh.json`, the release version and these documents changed. Collection, native worker, sync/DPAPI, owner/AI RPCs, transport, package/service/data identities and all 34 runtime files are unchanged. The [read-only redesign-release comparison](<tests/review_redesign_release.py>) enforces that changed-file list, proves the archive matches this source tree, and checks locale key parity/superset. The earlier [layout-only comparison](<tests/review_viewport_release.py>) remains the record for the 1.2.1→1.2.2 archive pair.
 
 ## 1.2.2 viewport-bound scrolling
 
@@ -64,9 +76,9 @@ ELECTRON_RUN_AS_NODE=1 "D:/deepseekharness/DeepSeek Harness.exe" tests/host-smok
 Packaging/verification:
 
 ```text
-pnpm pack --out D:/Anki/dsh-anki-1.2.2.tgz
-runtime/python.exe tests/verify_release.py D:/Anki/dsh-anki-1.2.2.tgz
-runtime/python.exe tests/review_viewport_release.py D:/Anki/dsh-anki-1.2.1.tgz D:/Anki/dsh-anki-1.2.2.tgz
+pnpm pack --out D:/Anki/dsh-anki-1.3.0.tgz
+runtime/python.exe tests/verify_release.py D:/Anki/dsh-anki-1.3.0.tgz
+runtime/python.exe tests/review_redesign_release.py D:/Anki/dsh-anki-1.2.2.tgz D:/Anki/dsh-anki-1.3.0.tgz
 ```
 
 ## Acceptance boundaries

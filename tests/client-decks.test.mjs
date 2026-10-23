@@ -49,7 +49,8 @@ function fixture({ models = [stock(10, 'Basic')], decks = defaultDecks, handler,
     async mount() { f.render(); f.commit(); await flush(); f.render(); f.commit(); await flush(); return f.render(); },
     button(label, tree = f.render()) { return flatten(tree).find((node) => node.type === 'button' && node.children.includes(label)); },
     panel(tree = f.render()) { return flatten(tree).find((node) => node.props.className?.split(' ').includes('dsh-anki-delete')); },
-    async open() { f.button('Delete deck…').props.onClick(); await flush(); return f.panel(); },
+    async open() { f.manage(); await flush(); f.button('Delete deck…').props.onClick(); await flush(); return f.panel(); },
+    manage() { const toggle = flatten(f.render()).find((node) => node.type === 'button' && node.props['aria-label'] === 'Manage decks'); if (toggle.props['aria-expanded'] !== 'true') toggle.props.onClick(); return f.render(); },
     name(value) { const input = flatten(f.panel()).find((node) => node.type === 'input'); input.props.onChange({ target: { value } }); },
     form() { return flatten(f.panel()).find((node) => node.type === 'form'); },
     sync(snapshot) { const panel = flatten(f.render()).find((node) => node.type?.name === 'SyncPanel'); panel.props.onStatus(snapshot); },
@@ -85,7 +86,7 @@ test('explicit manual model choice survives refresh and missing choices fall bac
 });
 
 test('Default ID 1 cannot request deletion and its protection is explained', async () => {
-  const f = fixture({ selected: '1' }); await f.mount();
+  const f = fixture({ selected: '1' }); await f.mount(); f.manage();
   const button = f.button('Delete deck…'); assert.equal(button.props.disabled, true);
   assert.ok(JSON.stringify(f.render()).includes('Default deck (ID 1)'));
   button.props.onClick(); await flush(); assert.equal(f.ownerCalls().length, 0);
@@ -128,7 +129,7 @@ test('filtered preview clearly separates returned cards from actual deletions', 
 test('cancel invalidates both ready confirmation and a late pending preview', async () => {
   let resolve;
   const f = fixture({ handler: ({ action }) => action === 'previewDelete' ? new Promise((done) => { resolve = done; }) : undefined });
-  await f.mount(); f.button('Delete deck…').props.onClick();
+  await f.mount(); f.manage(); f.button('Delete deck…').props.onClick();
   assert.ok(f.panel()); f.button('Cancel').props.onClick();
   resolve({ ok: true, value: preview() }); await flush();
   assert.equal(f.panel(), undefined); assert.equal(f.ownerCalls().length, 1);
@@ -140,7 +141,7 @@ test('cancel invalidates both ready confirmation and a late pending preview', as
 test('a queued deck-selection event invalidates a late preview for the old selection', async () => {
   let resolve;
   const f = fixture({ handler: ({ action }) => action === 'previewDelete' ? new Promise((done) => { resolve = done; }) : undefined });
-  await f.mount(); const before = f.render();
+  await f.mount(); f.manage(); const before = f.render();
   const other = flatten(before).find((node) => node.props.className === 'dsh-anki-deck' && node.props.title?.startsWith('Other ·'));
   f.button('Delete deck…', before).props.onClick(); other.props.onClick();
   assert.equal(f.values[3], '3');
@@ -156,7 +157,7 @@ test('refresh consumes ready authorization and prevents stale form resubmission'
 
 for (const sync of [{ active: true }, { active: false, pendingFull: { token: 'full-decision' } }]) {
   test(`sync ${sync.active ? 'active' : 'pending full'} clears and blocks deletion even for stale handlers`, async () => {
-    const f = fixture(); await f.mount(); const staleButton = f.button('Delete deck…'); await f.open(); f.name('Languages::Japanese');
+    const f = fixture(); await f.mount(); f.manage(); const staleButton = f.button('Delete deck…'); await f.open(); f.name('Languages::Japanese');
     const staleForm = f.form(); f.sync(sync);
     assert.equal(f.panel(), undefined); assert.equal(f.button('Delete deck…').props.disabled, true);
     staleForm.props.onSubmit(event); staleButton.props.onClick(); await flush();
@@ -167,7 +168,7 @@ for (const sync of [{ active: true }, { active: false, pendingFull: { token: 'fu
 test('sync invalidates in-flight preview before its response arrives', async () => {
   let resolve;
   const f = fixture({ handler: ({ action }) => action === 'previewDelete' ? new Promise((done) => { resolve = done; }) : undefined });
-  await f.mount(); f.button('Delete deck…').props.onClick(); f.sync({ active: true });
+  await f.mount(); f.manage(); f.button('Delete deck…').props.onClick(); f.sync({ active: true });
   resolve({ ok: true, value: preview() }); await flush(); assert.equal(f.panel(), undefined);
 });
 

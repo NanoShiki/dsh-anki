@@ -27,7 +27,7 @@ with tarfile.open(archive, 'r:gz') as release:
         assert f'package/{name}' in files, f'missing: {name}'
     assert len(files['package/LICENSE']) > 30000
     manifest = json.loads(files['package/package.json'])
-    assert manifest['name'] == '@local/dsh-anki' and manifest['version'] == '1.2.2'
+    assert manifest['name'] == '@local/dsh-anki' and manifest['version'] == '1.3.0'
     assert manifest['repository']['url'] == 'git+https://github.com/NanoShiki/dsh-anki.git'
     assert b"id: '@local/dsh-anki'," in files['package/client.js']
     assert b"name: '@local/dsh-anki'" in files['package/cordis.patch.yml']

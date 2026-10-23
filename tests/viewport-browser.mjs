@@ -24,6 +24,9 @@ const sourcePath = path.join(project, 'client.js');
 const current = fs.readFileSync(sourcePath, 'utf8');
 const digest = (value) => createHash('sha256').update(value).digest('hex');
 const baselineOnly = process.env.VIEWPORT_BASELINE_ONLY === '1';
+const language = process.env.VIEWPORT_LOCALE || 'en';
+assert.ok(['en', 'zh'].includes(language), 'supported fixture locale');
+const labels = JSON.parse(fs.readFileSync(path.join(project, 'locale', `${language}.json`), 'utf8'));
 const browser = process.env.VIEWPORT_BROWSER || 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
 assert.ok(fs.existsSync(browser), 'installed Chromium browser exists');
 const matrix = [
@@ -33,7 +36,7 @@ const matrix = [
   { name: 'zoom150', width: 1050, height: 900, zoom: 1.5 },
   { name: 'narrow-zoom150', width: 570, height: 960, zoom: 1.5 },
 ];
-const scenarios = ['browse', 'add', 'review', 'transfer', 'sync', 'sync-full'];
+const scenarios = ['browse', 'deck-create', 'deck-manage', 'add', 'review', 'transfer', 'sync', 'sync-full'];
 const escape = (value) => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 const unitless = new Set(['opacity', 'flex', 'flexGrow', 'flexShrink', 'order', 'fontWeight', 'lineHeight', 'zIndex']);
 
@@ -56,14 +59,15 @@ function workspaceMarkup(source, scenario) {
   const values = {
     Workspace: {
       status: { noteCount: 100, cardCount: 100, version: 'synthetic engine', collectionPath: '/synthetic/isolated-workspace/collection.anki2', importsDir: '/synthetic/isolated-workspace/imports', undo: { available: true } },
-      decks, models, deckId: '2', tab: scenario === 'sync-full' ? 'sync' : scenario, initializing: false,
+      decks, models, deckId: '2', tab: scenario.startsWith('deck-') ? 'browse' : scenario === 'sync-full' ? 'sync' : scenario, initializing: false,
+      deckControls: scenario.startsWith('deck-') ? scenario.slice(5) : '',
       deckName: 'New synthetic deck', rename: 'Renamed synthetic deck',
       notes: { total: 100, items: Array.from({ length: 50 }, (_, index) => ({
         id: index + 1,
         preview: `${index + 1}. 中文与 English synthetic preview: a genuinely long question that wraps across two lines and preserves useful content when the results list is narrow.`,
         model: 'Synthetic bilingual model', deck: 'Practice · 中文', cards: [{ suspended: index % 3 === 0 }],
       })) },
-      note, editFields: fields, editTags: 'synthetic fixture', modelId: '1', addDeckId: '2', addFields: fields, addTags: 'synthetic',
+      note, editFields: fields, editTags: 'synthetic', modelId: '1', addDeckId: '2', addFields: fields, addTags: 'synthetic',
       card: { token: 'synthetic-card', question: '<p>Synthetic question</p>', deckName: decks[1].name, remaining: 50 },
       revealed: { answer: '<p>Synthetic answer</p>', buttons: [1, 2, 3, 4].map((rating) => ({ rating, interval: `${rating} days` })) },
       importName: 'synthetic.apkg', exportName: 'synthetic-export.apkg', exportPath: '/synthetic/isolated-workspace/exports/synthetic-export.apkg', syncState: snapshot,
@@ -97,7 +101,7 @@ function workspaceMarkup(source, scenario) {
   const definition = bundle.factory((name) => { assert.equal(name, 'react'); return React; });
   const ctx = {
     effect: (callback) => callback(),
-    locale: { register(_namespace, value) { dictionaries = value; }, bind: () => (key) => dictionaries.en[key], subscribe() {}, getSnapshot: () => ({ revision: 1 }) },
+    locale: { register(_namespace, value) { dictionaries = value; }, bind: () => (key) => dictionaries[language][key], subscribe() {}, getSnapshot: () => ({ revision: 1 }) },
     slots: { inject: (_slot, callback) => callback(), register(meta, component) { if (meta.name === 'main') main = { meta, component }; } },
     connection: { rpc: { call() { throw new Error('Layout fixture must never request backend operations'); } } }, layout: {},
   };
@@ -127,7 +131,7 @@ function workspaceMarkup(source, scenario) {
       }
       name = ({ className: 'class', htmlFor: 'for', srcDoc: 'srcdoc', tabIndex: 'tabindex', strokeWidth: 'stroke-width', strokeLinecap: 'stroke-linecap', strokeLinejoin: 'stroke-linejoin' })[name] || name;
       if (node.type === 'textarea' && name === 'value') continue;
-      attributes.push(value === true ? name : `${name}="${escape(value)}"`);
+      attributes.push(value === true ? (/^(aria|data)-/.test(name) ? `${name}="true"` : name) : `${name}="${escape(value)}"`);
     }
     const open = `<${node.type}${attributes.length ? ' ' + attributes.join(' ') : ''}>`;
     if (['input', 'meta', 'img', 'br', 'hr', 'source', 'link'].includes(node.type)) return open;
@@ -188,7 +192,7 @@ function browserMeasurements() {
     check('no document, host or whole-Workspace overflow', !hasOuterOverflow(), initialOuter);
     check('engine footer remains visible', fullyVisible(root.querySelector('.dsh-anki-foot')));
     check('tab navigation is visible', fullyVisible(root.querySelector('.dsh-anki-tabs')));
-    if (fixture.scenario === 'browse') {
+    if (fixture.scenario === 'browse' || fixture.scenario.startsWith('deck-')) {
       const list = root.querySelector('.dsh-anki-list');
       const rows = [...list.querySelectorAll('.dsh-anki-note')];
       const pager = root.querySelector('.dsh-anki-pagination');
@@ -206,7 +210,7 @@ function browserMeasurements() {
         const reached = reachable(label);
         check(`editor field ${label.textContent} reachable internally`, reached.visible && !reached.outerScrolled, reached);
       }
-      for (const [name, element] of [['editor save', editor.querySelector('button[type=submit]')], ['editor suspend/footer', buttonWithText(editor, 'Suspend cards')]]) {
+      for (const [name, element] of [['editor save', editor.querySelector('button[type=submit]')], ['editor suspend/footer', buttonWithText(editor, labels.suspend)]]) {
         const reached = reachable(element);
         check(`${name} reachable by internal scroll`, reached.found && reached.visible && !reached.outerScrolled, reached);
       }
@@ -216,7 +220,7 @@ function browserMeasurements() {
       const targets = fixture.scenario === 'add' ? [panel.querySelector('button[type=submit]')]
         : fixture.scenario === 'review' ? [root.querySelector('.dsh-anki-review-footer'), ...root.querySelectorAll('.dsh-anki-rating')]
           : fixture.scenario === 'transfer' ? [...panel.querySelectorAll('button[type=submit]'), panel.querySelector('.dsh-anki-code')]
-            : fixture.scenario === 'sync-full' ? [buttonWithText(panel, 'Not now'), ...panel.querySelectorAll('.dsh-anki-full-sync button')]
+            : fixture.scenario === 'sync-full' ? [buttonWithText(panel, labels.syncDismissFull), ...panel.querySelectorAll('.dsh-anki-full-sync button')]
               : [panel.querySelector('button[type=submit]'), panel.querySelector('.dsh-anki-check')];
       check('non-browse terminal controls found', targets.length > 0 && targets.every(Boolean));
       for (const [index, element] of targets.entries()) {
@@ -226,12 +230,21 @@ function browserMeasurements() {
     }
     const aside = root.querySelector('.dsh-anki-aside');
     const decks = aside.querySelector('.dsh-anki-decks');
-    check('60 decks plus all-decks control present', decks.querySelectorAll('button').length === 61);
-    const lastDeck = reachable(decks.querySelector('button:last-child'));
-    check('last deck reachable by internal scroll', lastDeck.found && lastDeck.visible && !lastDeck.outerScrolled, lastDeck);
-    for (const [index, element] of [...aside.querySelectorAll('form input, form button[type=submit]'), buttonWithText(aside, 'Delete deck…')].entries()) {
+    if (!fixture.scenario.startsWith('deck-')) {
+      check('60 decks plus all-decks control present', !!decks && decks.querySelectorAll('button').length === 61);
+      const lastDeck = reachable(decks?.querySelector('button:last-child'));
+      check('last deck reachable by internal scroll', lastDeck.found && lastDeck.visible && !lastDeck.outerScrolled, lastDeck);
+    }
+    const management = [...aside.querySelectorAll('form input, form button[type=submit]')];
+    if (fixture.scenario === 'deck-manage') management.push(buttonWithText(aside, labels.deleteDeck));
+    if (fixture.scenario.startsWith('deck-')) check('expanded deck management controls rendered', management.length >= 2 && management.every(Boolean));
+    for (const [index, element] of management.entries()) {
       const reached = reachable(element);
       check(`deck management control ${index + 1} reachable internally`, reached.found && reached.visible && !reached.outerScrolled, reached);
+    }
+    for (const [index, element] of [...aside.querySelectorAll('button[aria-expanded]')].entries()) {
+      const reached = reachable(element);
+      check(`deck control toggle ${index + 1} reachable internally`, reached.visible && !reached.outerScrolled, reached);
     }
     for (const element of root.querySelectorAll('[role=tab]')) {
       const reached = reachable(element);
@@ -301,6 +314,12 @@ async function runChromium(html, image, profile, viewport, stderrPath) {
     assert.equal(measured.viewport?.dpr, viewport.zoom, '150% emulation uses exact device pixel ratio');
     const capture = await command('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }, sessionId);
     fs.writeFileSync(image, Buffer.from(capture.data, 'base64'));
+    // Also capture the ordinary initial browse view for visual comparison; keep the
+    // primary screenshot above paired with the measured final-row state.
+    const initial = await command('Runtime.evaluate', { expression: 'document.getElementById("host-slot").innerHTML = fixtures.find(value => value.scenario === "browse").markup; document.getElementById("host-slot").getBoundingClientRect().height', returnByValue: true }, sessionId);
+    assert.ok(!initial.exceptionDetails, 'initial browse capture restores the actual markup');
+    const initialCapture = await command('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }, sessionId);
+    fs.writeFileSync(image.replace(/\.png$/, '-initial.png'), Buffer.from(initialCapture.data, 'base64'));
     return measured;
   } finally {
     fs.writeFileSync(stderrPath, stderr);
@@ -320,7 +339,7 @@ for (const viewport of matrix) {
     const html = path.join(scope, `${stem}.html`);
     // Only the synthetic host shell is sized/styled here. No plugin selector or CSS override is appended.
     // CDP emulates 150% browser zoom via smaller CSS viewport and matching DPR; no plugin CSS is changed.
-    const document = `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; frame-src 'self'"><title>Isolated full Workspace viewport regression</title><style>html,body{margin:0;width:100%;height:100%;font-family:Arial,sans-serif;background:#fff;color:#222}#host-shell{display:flex;flex-direction:column;width:100vw;height:100vh;--dsw-alias-label-primary:#222;--dsw-alias-label-secondary:#555;--dsw-alias-label-tertiary:#666;--dsw-alias-background-primary:#fff;--dsw-alias-state-error-primary:#b22}#host-toolbar{box-sizing:border-box;flex:0 0 40px;padding:10px 16px;border-bottom:1px solid #ddd;font-size:13px}#host-main{display:flex;flex:1;min-height:0;min-width:0}#host-slot{position:relative;flex:1;min-height:0;min-width:0;overflow:auto}</style></head><body><div id="host-shell"><div id="host-toolbar">Synthetic DSH host · ${stem}</div><main id="host-main"><div id="host-slot"></div></main></div><pre id="results" hidden></pre><script>const fixtures=${JSON.stringify(fixtures).replaceAll('<', '\\u003c')};try{(${browserMeasurements.toString()})();}catch(error){document.getElementById('results').textContent=JSON.stringify({scriptError:String(error),stack:error.stack});}</script></body></html>`;
+    const document = `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; frame-src 'self'"><title>Isolated full Workspace viewport regression</title><style>html,body{margin:0;width:100%;height:100%;font-family:Arial,sans-serif;background:#fff;color:#222}#host-shell{display:flex;flex-direction:column;width:100vw;height:100vh;--dsw-alias-label-primary:#222;--dsw-alias-label-secondary:#555;--dsw-alias-label-tertiary:#666;--dsw-alias-background-primary:#fff;--dsw-alias-state-error-primary:#b22}#host-toolbar{box-sizing:border-box;flex:0 0 40px;padding:10px 16px;border-bottom:1px solid #ddd;font-size:13px}#host-main{display:flex;flex:1;min-height:0;min-width:0}#host-slot{position:relative;flex:1;min-height:0;min-width:0;overflow:auto}</style></head><body><div id="host-shell"><div id="host-toolbar">Synthetic DSH host · ${stem}</div><main id="host-main"><div id="host-slot"></div></main></div><pre id="results" hidden></pre><script>const labels=${JSON.stringify(labels).replaceAll('<', '\\u003c')};const fixtures=${JSON.stringify(fixtures).replaceAll('<', '\\u003c')};try{(${browserMeasurements.toString()})();}catch(error){document.getElementById('results').textContent=JSON.stringify({scriptError:String(error),stack:error.stack});}</script></body></html>`;
     fs.writeFileSync(html, document);
     const profile = fs.mkdtempSync(path.join(scope, 'isolated-profile-'));
     const image = path.join(scope, `${stem}.png`);
@@ -339,7 +358,7 @@ for (const viewport of matrix) {
   }
 }
 if (!baselineOnly) assert.equal(digest(fs.readFileSync(sourcePath, 'utf8')), digest(current), 'client.js did not change during the regression; rerun after concurrent edits');
-const report = { baselineCommit, sourceSHA256: digest(current), browser, mode: baselineOnly ? 'baseline-only (no fix claim)' : 'immutable baseline and actual current source', fixture: 'complete registered Workspace and child component DOM via VM React state stubs; exact CSS without corrective overrides', zoom: '150% browser zoom emulation: CDP reduces CSS viewport and increases DPR while holding physical capture size fixed; not browser toolbar interaction', reports };
+const report = { baselineCommit, language, sourceSHA256: digest(current), browser, mode: baselineOnly ? 'baseline-only (no fix claim)' : 'immutable baseline and actual current source', fixture: 'complete registered Workspace and child component DOM via VM React state stubs; exact CSS without corrective overrides', zoom: '150% browser zoom emulation: CDP reduces CSS viewport and increases DPR while holding physical capture size fixed; not browser toolbar interaction', reports };
 fs.writeFileSync(path.join(scope, 'results.json'), JSON.stringify(report, null, 2));
 for (const viewport of matrix) {
   const old = reports.find((value) => value.kind === 'old' && value.viewport.name === viewport.name);

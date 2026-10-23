@@ -176,5 +176,10 @@
   "syncBackup": "Last local backup",
   "syncDecisionBanner": "Synchronization requires an explicit full upload or download decision. Collection changes and review are paused.",
   "syncOpen": "Open Sync",
-  "syncChanged": "Synchronization may have changed the collection. Your editor draft is preserved, but its version is stale. Reload the note before saving; reloading discards the current draft."
+  "syncChanged": "Synchronization may have changed the collection. Your editor draft is preserved, but its version is stale. Reload the note before saving; reloading discards the current draft.",
+  "manageDecks": "Manage decks",
+  "savedState": "Saved",
+  "unsaved": "Unsaved draft",
+  "reloadRequired": "Reload required",
+  "collectionReady": "Open"
 }
