@@ -22,6 +22,10 @@
 
 安装包校验值随 Release 提供；核心逐文件校验值见 [core-sha256.json](<core-sha256.json>)，官方 wheel 下载地址、版本与 SHA-256 见 [core-lock.json](<core-lock.json>)。
 
+**始终最新（稳定链接）：** 每个 Release 都附带同名资产 `dsh-anki.tgz`，所以
+`https://github.com/NanoShiki/dsh-anki/releases/latest/download/dsh-anki.tgz`
+永久指向最新正式版；市场收录条目用的就是这个链接。发布新版本只需新建 Release 并附上同名资产，**不需要再向市场提交 PR**。要锁定版本或核对哈希时，用上面的版本化链接。
+
 **对应源码与许可：** Anki 核心的固定提交源码、锁定的 Rust 依赖源码、构建说明，以及 Python 依赖源码与完整第三方许可文本，随同一 Release 另行提供（`*-corresponding-source.tar.gz`、`*-python-sources.tar.gz`）。普通用户无需下载它们即可安装；安装包内已包含运行时所需的全部许可与声明文本。
 
 **已装同名包 `@local/dsh-anki` 的旧版本：** 等待同步结束 → 禁用插件并等后台 Python 进程退出 → 备份整个数据目录 → 更新同一个包 → 保留 `dataDir` 不变，将旧的 `ankiPackages` / `pythonPath` 覆盖项清空以使用内置核心 → 重新启用，按管理器提示刷新或重启。不迁移、不清空牌库；高级用户主动保留的外部覆盖路径仍会被尊重。
