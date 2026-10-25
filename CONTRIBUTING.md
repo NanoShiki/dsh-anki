@@ -7,12 +7,16 @@
 1. 从 `main` 新建分支，分支名建议 `feat/…`、`fix/…`、`docs/…`、`chore/…`。
 2. 在分支上完成修改，并跑通[本地检查](#本地检查)。
 3. 推送分支，向 `main` 提交 Pull Request，按模板填写「变更内容 / 验证方式 / 风险与回滚」。
-4. PR 的 `test` 检查必须通过；合并后分支可删除。
+4. PR 需在模板里写明实际跑过的检查与结果；维护者合并前会复核。
 5. 不要直接向 `main` push，也不要为了绕过保护临时关闭规则。
 
 ## 本地检查
 
 ```bash
+# 仓库完整性：包名/版本、locale 显示名、runtime 与 core 逐文件哈希、许可文件、
+# 是否误提交牌库或凭据（CI 与发版前都跑这个）
+runtime/python.exe tests/check_manifest.py
+
 # JavaScript（需要 Node 22+）
 node --test tests/worker-client.test.mjs tests/client.test.mjs tests/auto-sync.test.mjs \
   tests/client-sync.test.mjs tests/client-decks.test.mjs

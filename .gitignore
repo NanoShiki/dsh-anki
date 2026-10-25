@@ -23,8 +23,6 @@
 !/.github/
 /.github/*
 !/.github/pull_request_template.md
-!/.github/workflows/
-!/.github/workflows/*.yml
 
 !/backend/
 /backend/*
