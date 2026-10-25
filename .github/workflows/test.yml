@@ -1,0 +1,33 @@
+name: test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: test-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    # The package bundles a Windows x64 CPython/runtime and its native tests spawn
+    # it, so the real test surface is Windows. pull_request events are read-only.
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: JavaScript tests
+        run: >-
+          node --test tests/worker-client.test.mjs tests/client.test.mjs
+          tests/auto-sync.test.mjs tests/client-sync.test.mjs tests/client-decks.test.mjs
+      - name: Native backend tests against the bundled core
+        run: runtime/python.exe -B -m unittest discover -s tests -p "test_*.py"
+      - name: Release manifest and locale metadata
+        run: runtime/python.exe tests/check_manifest.py
