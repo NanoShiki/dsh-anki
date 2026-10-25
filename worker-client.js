@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
 import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, isAbsolute, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('.', import.meta.url));
@@ -11,10 +11,19 @@ export class AnkiWorkerError extends Error {
 
 /** One private, serial Anki process per installed Host plugin; no listening port. */
 export class AnkiWorkerClient {
-  constructor({ pythonPath, ankiPackages, dataDir, timeoutMs = 30_000, log = () => {}, spawnProcess = spawn }) {
-    this.pythonPath = pythonPath || join(ROOT, 'runtime', process.platform === 'win32' ? 'python.exe' : 'bin/python3');
-    this.ankiPackages = ankiPackages;
-    this.dataDir = dataDir;
+  constructor({ pythonPath = '', ankiPackages = '', dataDir, timeoutMs = 30_000, log = () => {}, spawnProcess = spawn, pathExists = existsSync }) {
+    for (const [name, value] of Object.entries({ pythonPath, ankiPackages })) {
+      if (typeof value !== 'string' || (value !== '' && !isAbsolute(value))) {
+        throw new AnkiWorkerError('path-invalid', `${name} must be an absolute path or empty to use the bundled runtime.`);
+      }
+    }
+    if (typeof dataDir !== 'string' || !isAbsolute(dataDir)) throw new AnkiWorkerError('path-invalid', 'dataDir must be an absolute path.');
+    this.bundledPython = pythonPath === '';
+    this.bundledCore = ankiPackages === '';
+    this.pythonPath = pythonPath ? resolve(pythonPath) : join(ROOT, 'runtime', process.platform === 'win32' ? 'python.exe' : 'bin/python3');
+    this.ankiPackages = ankiPackages ? resolve(ankiPackages) : join(ROOT, 'core');
+    this.dataDir = resolve(dataDir);
+    this.pathExists = pathExists;
     this.timeoutMs = timeoutMs;
     this.log = log;
     this.spawnProcess = spawnProcess;
@@ -30,11 +39,15 @@ export class AnkiWorkerClient {
     if (this.disposed) throw new AnkiWorkerError('disposed', 'Anki workspace has been stopped.');
     if (this.stopping) throw new AnkiWorkerError('worker-stopping', 'The previous Anki process is still closing. Refresh in a moment; do not retry a mutation automatically.');
     if (this.child) return;
-    if (!existsSync(this.pythonPath)) throw new AnkiWorkerError('runtime-missing', 'Anki Python runtime is missing. Run the workspace setup script first.');
-    if (!this.ankiPackages || !existsSync(join(this.ankiPackages, 'anki'))) {
-      throw new AnkiWorkerError('core-missing', 'Anki core is missing. Set ankiPackages to the installed Anki app_packages directory.');
+    if (!this.pathExists(this.pythonPath)) throw new AnkiWorkerError('runtime-missing', this.bundledPython
+      ? 'Bundled Anki Python runtime is missing. Reinstall the complete Anki workspace package.'
+      : 'Configured Anki Python runtime is missing. Check the absolute pythonPath override or clear it to use the bundled runtime.');
+    if (!this.pathExists(join(this.ankiPackages, 'anki'))) {
+      throw new AnkiWorkerError('core-missing', this.bundledCore
+        ? 'Bundled Anki core is missing. Reinstall the complete Anki workspace package; no external installation is used automatically.'
+        : 'Configured Anki core is missing. Check the absolute ankiPackages override or clear it to use the bundled core.');
     }
-    const child = this.spawnProcess(this.pythonPath, ['-u', join(ROOT, 'backend', 'worker.py'), '--data-dir', this.dataDir, '--anki-packages', this.ankiPackages], {
+    const child = this.spawnProcess(this.pythonPath, ['-B', '-u', join(ROOT, 'backend', 'worker.py'), '--data-dir', this.dataDir, '--anki-packages', this.ankiPackages], {
       windowsHide: true,
       stdio: ['pipe', 'pipe', 'pipe'],
       env: { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUTF8: '1' },

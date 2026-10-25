@@ -32,10 +32,8 @@ def discover(env, candidates):
     raise RuntimeError(f"Set {env}; no runtime/core found in project or research paths")
 
 
-PYTHON = discover("ANKI_PYTHON", [PROJECT / "runtime/python.exe", PROJECT / "plugin/runtime/python.exe",
-                                PROJECT.parent / "dsh-anki-research/runtime/python.exe"])
-PACKAGES = discover("ANKI_PACKAGES", [PROJECT / "runtime/app_packages", PROJECT / "plugin/runtime/app_packages",
-                                    PROJECT.parent / "app_packages"])
+PYTHON = discover("ANKI_PYTHON", [PROJECT / "runtime/python.exe"])
+PACKAGES = discover("ANKI_PACKAGES", [PROJECT / "core"])
 
 
 class Client:
@@ -43,7 +41,7 @@ class Client:
         self.directory = Path(directory)
         self.directory.parent.mkdir(parents=True, exist_ok=True)
         self.errors = tempfile.TemporaryFile(mode="w+b", dir=self.directory.parent)
-        self.process = subprocess.Popen([str(PYTHON), "-u", str(WORKER), "--data-dir", str(self.directory),
+        self.process = subprocess.Popen([str(PYTHON), "-B", "-u", str(WORKER), "--data-dir", str(self.directory),
                     "--anki-packages", str(PACKAGES), "--lang", language], stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE, stderr=self.errors, encoding="utf-8", bufsize=1)
         self.responses = queue.Queue()

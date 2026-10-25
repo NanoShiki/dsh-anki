@@ -105,8 +105,8 @@ for (const activity of ['review.next', 'notes.add', 'decks.delete']) test(`real 
   let releaseStatus, releaseActivity;
   const state = { loggedIn: true, active: false, settings: { autoSync: true }, pendingFull: null };
   const worker = new AnkiWorkerClient({
-    pythonPath: fileURLToPath(new URL('../runtime/python.exe', import.meta.url)),
-    ankiPackages: 'D:/Anki/app_packages', dataDir: 'unused-fake-only',
+    dataDir: fileURLToPath(new URL('./unused-fake-only', import.meta.url)),
+    pathExists: () => true, // Fake spawn: no runtime or collection access.
     spawnProcess() {
       const child = new EventEmitter();
       child.stdin = new PassThrough(); child.stdout = new PassThrough(); child.stderr = new PassThrough();

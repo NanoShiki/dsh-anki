@@ -1,3 +1,7 @@
 # Normalize source text while keeping all bundled runtime hashes byte-exact.
 * text=auto eol=lf
 runtime/** -text
+core/** -text
+third-party-licenses/*.txt -text
+core-lock.json -text
+core-sha256.json -text

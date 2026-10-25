@@ -36,8 +36,11 @@ try {
   await root.plugin(Policy);
   await root.plugin(Registry);
   await root.plugin(Gateway, {});
-  await root.plugin(Workspace, { ankiPackages: 'D:/Anki/app_packages' });
+  await root.plugin(Workspace, {});
   assert.ok(root.get('ankiWorkspace'), 'workspace service active');
+  assert.equal(root.ankiWorkspace.worker.ankiPackages, fileURLToPath(new URL('../core', import.meta.url)), 'empty config uses module-relative bundled core');
+  assert.equal(root.ankiWorkspace.worker.bundledPython, true);
+  assert.equal(root.ankiWorkspace.worker.bundledCore, true);
   const peer = { id: 'test-owner', ctx: root, signal: new AbortController().signal, principal: { kind: 'owner' } };
   const invoke = (action, params = {}, currentPeer = peer) => root.typertGateway.invoke({
     namespace: 'ankiWorkspace', method: 'execute', args: { action, params }, peer: currentPeer,

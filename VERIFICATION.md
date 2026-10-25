@@ -1,4 +1,15 @@
-# Verification record — 1.3.1 / 2026-10-23
+# Verification record — 1.4.0 / 2026-10-25
+
+## 1.4.0 bundled headless core
+
+- Official PyPI Windows-compatible wheels for Anki 26.5 and eleven runtime dependencies assembled without pip/install hooks. All 352 extracted files and 34 CPython runtime files are hash-pinned. No desktop Anki/Qt/aqt, private collection, credentials or bytecode caches are packaged.
+- Default loader selects module-relative bundled runtime/core; explicit absolute overrides are preserved with no external fallback. Python bytecode writes are disabled for the worker.
+- **39/39 Python integration tests passed** against bundled core, including native notes/review/APKG/media, deletion safety, DPAPI and localhost native sync. **82/82 JavaScript tests passed** including loader defaults, missing-artifact behavior and path validation.
+- **48 real Host/Gateway smoke checks passed** with empty plugin config and bundled core, validating owner-only operations and shared UI/tool collection. No actual user profile was opened.
+- The candidate tgz was verified, extracted into a separate unrelated directory, then tested with poisoned `PYTHONHOME`, `PYTHONPATH` and `ANKI_PACKAGES`. All 13 probed third-party modules resolved inside that extracted package; Python's entire search path was its bundled core/stdlib/runtime. Default worker created an isolated collection, added/searched a note, revealed/rated a review and exported APKG successfully.
+- A static normal/delay PE import inspection of bundled EXE/DLL/PYD files found only bundled runtime DLLs and Windows system dependencies, not an external Anki/Qt/VC installer dependency.
+- This is relocation/import-isolation evidence on this Windows host, **not** a new Windows VM installation or a byte-for-byte rebuild of upstream binaries. An attempted system-Temp smoke fixture hit a Windows write denial; permission inspection made no changes. Successful tests used fresh project-local isolated fixtures.
+- Upstream source and dependency notices accompany the release. Real AnkiWeb credentials/cloud sync and authenticated plugin-manager installation remain owner-driven acceptance checks; automated tests never touch the production collection.
 
 ## 1.3.1 documentation-only release
 

@@ -6,16 +6,36 @@ The DSH Anki Workspace source is licensed under **GNU AGPL version 3 or later**,
 
 本集成源代码采用 GNU AGPL 第 3 版或更新版本，完整文本见上述链接。分发时保留许可说明，并按适用条款提供对应源代码；网络使用相关义务同样需要考虑。独立进程或 RPC 边界不自动免除许可义务。
 
-## Anki core — external dependency / 外部依赖
+## Anki core — bundled / 随附
 
-- Compatible installed release: **26.05**, build `e64c6b1a`, source commit `e64c6b1aee3e8d668fb8bbe084beada8e070d985`.
+- Bundled official PyPI wheel: **anki 26.5**, Windows x64 CPython abi3 (runtime reports **26.05**), source commit `e64c6b1aee3e8d668fb8bbe084beada8e070d985`.
 - Source: https://github.com/ankitects/anki/tree/e64c6b1aee3e8d668fb8bbe084beada8e070d985
 - Project: https://apps.ankiweb.net
-- Core binaries and their dependency trees are **not bundled** here. This package loads the user's separately installed `app_packages` directory, by default `D:/Anki/app_packages`.
+- The unmodified core wheel and its Python runtime dependency closure are included under [core](<core/>). No `aqt`, Qt, Anki desktop program or user collection is bundled. Official artifact URLs, versions and SHA-256 are pinned in [core-lock.json](<core-lock.json>); extracted files in [core-sha256.json](<core-sha256.json>).
 - [ANKI-LICENSE.txt](<ANKI-LICENSE.txt>) is an exact copy of the inspected upstream license notice. Anki is AGPL-3.0-or-later, with specified BSD-3 contributions and other separately licensed components. Refer to the pinned source's LICENSE/CONTRIBUTORS and the installed distribution's notices for the complete component/dependency information. Do not assume this notice replaces them.
 - Anki's trademark/logo rights remain with their respective owners; this integration does not redistribute Anki's logo.
 
-Anki 核心为独立安装的外部依赖，未打包进本插件。随附上游说明为原样副本；其各项例外、贡献者及二进制依赖许可仍以对应版本上游和安装发行包为准。未来若重新分发核心或其依赖，必须另行完整审查并履行义务，不能仅凭本说明。
+Anki 核心及其运行依赖随本插件分发，未修改上游 wheel 内容。对应源码（含固定提交、翻译子模块、锁定的 Rust 依赖和构建说明）与 Python 依赖源码在同一 [v1.4.0 Release](https://github.com/NanoShiki/dsh-anki/releases/tag/v1.4.0) 提供，无需额外账号或费用。源码包不是安装前置项；普通用户只需要插件 `.tgz`。源码提供不表示已经完成可复现的逐位重建。
+
+### Bundled Python dependencies / Python 依赖
+
+All wheel metadata, RECORD files, copyright/license texts and applicable NOTICE files are retained unchanged. The following is an index, not a replacement for those texts or the source archives:
+
+| Distribution | Version | License |
+| --- | --- | --- |
+| decorator | 5.3.1 | BSD-2-Clause |
+| Markdown | 3.10.2 | BSD-3-Clause |
+| orjson | 3.11.9 | MPL-2.0 AND (Apache-2.0 OR MIT) |
+| protobuf | 7.35.1 | BSD-3-Clause |
+| requests | 2.34.2 | Apache-2.0 |
+| typing_extensions | 4.15.0 | PSF-2.0 |
+| charset-normalizer | 3.4.7 | MIT |
+| idna | 3.18 | BSD-3-Clause |
+| urllib3 | 2.7.0 | MIT |
+| certifi | 2026.5.20 | MPL-2.0 |
+| PySocks | 1.7.1 | BSD (see included license) |
+
+Anki's native Rust library also contains separately licensed Rust/native dependencies. Their license/notice texts are preserved in [third-party-licenses/ANKI-NATIVE-NOTICES.txt](<third-party-licenses/ANKI-NATIVE-NOTICES.txt>), and their sources plus build instructions are in the corresponding-source release. Python native extension notices are in [third-party-licenses/PYTHON-NATIVE-NOTICES.txt](<third-party-licenses/PYTHON-NATIVE-NOTICES.txt>). These are not covered by Anki's AGPL or by the Python-only table above; the MPL-covered sources (including certifi and orjson components) are available in the dependency source archives in that release.
 
 ## CPython 3.13.5 — bundled / 随附
 

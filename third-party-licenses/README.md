@@ -1,0 +1,7 @@
+# Native dependency notices
+
+- [PYTHON-NATIVE-NOTICES.txt](<PYTHON-NATIVE-NOTICES.txt>) preserves the LICENSE, COPYING, NOTICE, COPYRIGHT, ACKNOWLEDGEMENTS and UNLICENSE texts from the 11 pinned Python dependency source archives, including all orjson vendored Cargo dependencies and the full yyjson MIT header. This is a conservative superset including build/test dependencies. Exact sources and hashes are recorded in [core-lock.json](<../core-lock.json>).
+- [protobuf-utf8-range-LICENSE.txt](<protobuf-utf8-range-LICENSE.txt>) supplements protobuf's BSD license with the MIT license for its bundled utf8_range code, copied from [protobuf v35.1](https://github.com/protocolbuffers/protobuf/blob/v35.1/third_party/utf8_range/LICENSE). Its source file utf8_range.c additionally carries: `Copyright 2023 Google LLC`.
+- [ANKI-NATIVE-NOTICES.txt](<ANKI-NATIVE-NOTICES.txt>) preserves the upstream Anki `LICENSE`, `CONTRIBUTORS` and AGPL text plus license/notice texts for every package in the locked Cargo vendor set (768 packages, a conservative superset that includes build/dev/non-Windows crates). Crates whose published payload contains no notice file are supplemented from their exact source revision or from canonical SPDX texts. The corresponding-source release provides the sources and build instructions; it does not claim a tested byte-for-byte rebuild.
+
+All copyrights and licenses remain with their respective authors. These files supplement, not replace, the unmodified wheel metadata/license files and [Anki license](<../ANKI-LICENSE.txt>).

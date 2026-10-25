@@ -22,7 +22,7 @@ class AnkiWorkspace extends TypertRemoteService {
   static inject = ['tools', 'profileContext', 'sandboxPolicy'];
   static Config = z.object({
     pythonPath: z.string().default('').description('Optional absolute CPython 3.13 executable; empty uses the bundled runtime.'),
-    ankiPackages: z.string().default('D:/Anki/app_packages').description('Anki 26.05 app_packages directory; desktop UI is not started.'),
+    ankiPackages: z.string().default('').description('Optional absolute Anki 26.05 packages directory; empty uses the bundled core. Desktop UI is not started.'),
     dataDir: z.string().default('').description('Optional absolute private workspace directory; never an existing Anki desktop profile. Empty uses this DSH profile data/anki-workspace.'),
   });
 
@@ -30,12 +30,12 @@ class AnkiWorkspace extends TypertRemoteService {
     super(ctx, 'ankiWorkspace');
     for (const initialize of initializers) initialize.call(this);
     const dataDir = config.dataDir || join(ctx.profileContext.dir, 'data', 'anki-workspace');
-    for (const [name, value] of Object.entries({ dataDir, ankiPackages: config.ankiPackages, ...(config.pythonPath ? { pythonPath: config.pythonPath } : {}) })) {
+    for (const [name, value] of Object.entries({ dataDir, ...(config.ankiPackages ? { ankiPackages: config.ankiPackages } : {}), ...(config.pythonPath ? { pythonPath: config.pythonPath } : {}) })) {
       if (!isAbsolute(value)) throw new Error(`${name} must be an absolute path.`);
     }
     this.worker = new AnkiWorkerClient({
       pythonPath: config.pythonPath,
-      ankiPackages: resolve(config.ankiPackages),
+      ankiPackages: config.ankiPackages,
       dataDir: resolve(dataDir),
       log: (message) => { if (message) ctx.logger?.warn?.('Anki core: %s', message); },
     });

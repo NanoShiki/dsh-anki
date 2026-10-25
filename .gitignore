@@ -30,6 +30,15 @@
 !/scripts/
 /scripts/*
 !/scripts/setup_runtime.py
+!/scripts/setup_core.py
+
+# Official headless wheels: full file set pinned by core-sha256.json.
+!/core/
+!/core-lock.json
+!/core-sha256.json
+!/third-party-licenses/
+/core/**/__pycache__/
+/core/**/*.pyc
 
 # Official, redistributable CPython files pinned by runtime-sha256.json.
 !/runtime/

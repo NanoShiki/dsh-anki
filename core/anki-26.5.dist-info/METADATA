@@ -1,0 +1,63 @@
+Metadata-Version: 2.4
+Name: anki
+Version: 26.5
+Summary: Python library for Anki, the spaced repetition flashcard program
+Project-URL: Bug Tracker, https://github.com/ankitects/anki/issues
+Project-URL: Source Code, https://github.com/ankitects/anki
+Project-URL: Anki Forum, https://forums.ankiweb.net/
+Project-URL: Docs: Contributor Guide, https://dev-docs.ankiweb.net/en/latest/contributing.html
+Project-URL: Docs: User Guide, https://docs.ankiweb.net/
+Project-URL: Docs: Add-on Guide, https://addon-docs.ankiweb.net/
+Project-URL: homepage, https://apps.ankiweb.net/
+Author: Anki Team
+License-Expression: AGPL-3.0-or-later
+Requires-Python: >=3.10
+Requires-Dist: decorator
+Requires-Dist: distro; sys_platform != 'darwin' and sys_platform != 'win32'
+Requires-Dist: markdown
+Requires-Dist: orjson
+Requires-Dist: protobuf<8.0,>=6.0
+Requires-Dist: requests[socks]
+Requires-Dist: typing-extensions
+Description-Content-Type: text/markdown
+
+# Anki
+
+[![Build Status](https://github.com/ankitects/anki/actions/workflows/ci.yml/badge.svg)](https://github.com/ankitects/anki/actions/workflows/ci.yml)
+
+Core Python library for [Anki](https://apps.ankiweb.net), the spaced repetition flashcard program.
+
+## About
+
+[Anki](https://apps.ankiweb.net) is a spaced repetition program that helps you remember things efficiently. This package contains the Python layer of Anki's core: it wraps the Rust backend (`rslib`) and exposes the primary API used by the desktop app and add-ons alike.
+
+It provides access to:
+
+- **Collection** — open, read, and write an Anki `.anki2` database
+- **Notes & Cards** — create, update, and query notes and cards
+- **Decks & Models** — manage deck configurations and note types
+- **Scheduler** — the FSRS/SM-2 scheduling algorithms
+- **Media** — media file management and sync
+- **Import / Export** — support for `.apkg`, `.colpkg`, and other formats
+- **Sync** — synchronisation with AnkiWeb
+- **Hooks** — event system for extending behaviour
+
+## Installation
+
+```bash
+pip install anki
+```
+
+> **Note:** `anki` is the headless library. If you want the full desktop application, install [`aqt`](https://pypi.org/project/aqt/) instead, which depends on this package.
+
+## Add-on development
+
+If you are building an Anki add-on, this is the package that gives you access to the collection and scheduling internals. See the [Add-on Guide](https://addon-docs.ankiweb.net/) for full documentation.
+
+## Contributing
+
+Want to contribute? Check out the [Contribution Guidelines](https://github.com/ankitects/anki/blob/main/docs/contributing.md) and the [Development Guide](https://github.com/ankitects/anki/blob/main/docs/development.md).
+
+## License
+
+[AGPL-3.0-or-later](https://github.com/ankitects/anki/blob/main/LICENSE)

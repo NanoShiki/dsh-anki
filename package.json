@@ -1,6 +1,6 @@
 {
   "name": "@local/dsh-anki",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "private": true,
   "type": "module",
   "description": "Native DSH Anki workspace with isolated headless Anki core and shared AI operations.",
@@ -14,7 +14,7 @@
   },
   "files": [
     "index.js", "auto-sync.js", "worker-client.js", "client.js", "backend/*.py", "runtime/**",
-    "cordis.patch.yml", "locale/*.json", "icon.svg", "README.md", "LICENSE", "THIRD-PARTY-NOTICES.md", "ANKI-LICENSE.txt", "VERIFICATION.md", "ACCEPTANCE.md", "runtime-sha256.json", "scripts/setup_runtime.py"
+    "cordis.patch.yml", "locale/*.json", "icon.svg", "README.md", "LICENSE", "THIRD-PARTY-NOTICES.md", "ANKI-LICENSE.txt", "VERIFICATION.md", "ACCEPTANCE.md", "runtime-sha256.json", "scripts/setup_runtime.py", "core/**", "core-lock.json", "core-sha256.json", "scripts/setup_core.py", "!core/**/__pycache__/**", "!core/**/*.pyc", "third-party-licenses/**"
   ],
   "scripts": {
     "test:client": "node --test tests/worker-client.test.mjs tests/client.test.mjs tests/auto-sync.test.mjs tests/client-sync.test.mjs tests/client-decks.test.mjs",

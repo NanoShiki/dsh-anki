@@ -5,13 +5,14 @@ import { PassThrough } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { AnkiWorkerClient } from '../worker-client.js';
 
-const runtime = fileURLToPath(new URL('../runtime/python.exe', import.meta.url));
+const runtime = fileURLToPath(new URL(process.platform === 'win32' ? '../runtime/python.exe' : '../runtime/bin/python3', import.meta.url));
+const core = fileURLToPath(new URL('../core', import.meta.url));
+const dataDir = fileURLToPath(new URL('./private-fixture', import.meta.url));
 function harness(handler, options = {}) {
   const generations = [];
   const worker = new AnkiWorkerClient({
-    pythonPath: runtime,
-    ankiPackages: 'D:/Anki/app_packages',
-    dataDir: 'D:/Anki/dsh-anki-workspace/tests/private-fixture',
+    dataDir,
+    pathExists: () => true, // Fake spawn never opens a runtime or collection.
     ...options,
     spawnProcess(executable, args, opts) {
       const child = new EventEmitter();
@@ -26,6 +27,54 @@ function harness(handler, options = {}) {
   return { worker, generations };
 }
 const reply = (child, id, result) => child.stdout.write(JSON.stringify({ id, ok: true, result }) + '\n');
+
+for (const options of [{}, { pythonPath: '', ankiPackages: '' }]) test(`module-relative bundled defaults with ${JSON.stringify(options)}`, async () => {
+  const checked = [];
+  const h = harness((child, request) => reply(child, request.id, {}), { ...options, pathExists: (path) => { checked.push(path); return true; } });
+  try {
+    assert.equal(h.worker.pythonPath, runtime);
+    assert.equal(h.worker.ankiPackages, core);
+    await h.worker.call('status');
+    assert.equal(h.generations[0].executable, runtime);
+    const args = h.generations[0].args;
+    assert.equal(args[args.indexOf('--anki-packages') + 1], core);
+    assert.deepEqual(checked, [runtime, fileURLToPath(new URL('../core/anki', import.meta.url))]);
+  } finally { await h.worker.close(); }
+});
+
+for (const name of ['pythonPath', 'ankiPackages', 'dataDir']) test(`${name} rejects invalid explicit paths before spawning`, () => {
+  for (const value of ['relative/path', 'C:relative', ' ', null, 123]) {
+    assert.throws(() => harness(() => assert.fail('must not spawn'), { [name]: value }), (error) => error.code === 'path-invalid' && error.message.includes(name));
+  }
+});
+
+test('explicit absolute overrides are retained', async () => {
+  const pythonPath = fileURLToPath(new URL('./override/python.exe', import.meta.url));
+  const ankiPackages = fileURLToPath(new URL('./override/packages', import.meta.url));
+  const h = harness((child, request) => reply(child, request.id, {}), { pythonPath, ankiPackages });
+  try {
+    await h.worker.call('status');
+    assert.equal(h.worker.bundledPython, false);
+    assert.equal(h.worker.bundledCore, false);
+    assert.equal(h.generations[0].executable, pythonPath);
+    const args = h.generations[0].args;
+    assert.equal(args[args.indexOf('--anki-packages') + 1], ankiPackages);
+  } finally { await h.worker.close(); }
+});
+
+for (const bundled of [true, false]) for (const missing of ['runtime', 'core']) test(`missing ${bundled ? 'bundled' : 'override'} ${missing} fails without fallback`, async () => {
+  const options = bundled ? {} : {
+    pythonPath: fileURLToPath(new URL('./missing/python.exe', import.meta.url)),
+    ankiPackages: fileURLToPath(new URL('./missing/packages', import.meta.url)),
+  };
+  const checked = [];
+  const h = harness(() => assert.fail('must not spawn'), { ...options, pathExists: (path) => { checked.push(path); return missing === 'core' && checked.length === 1; } });
+  try {
+    await assert.rejects(h.worker.call('status'), (error) => error.code === `${missing}-missing` && error.message.includes(bundled ? 'Bundled' : 'Configured'));
+    assert.equal(h.generations.length, 0);
+    assert.equal(checked.length, missing === 'runtime' ? 1 : 2, 'no external fallback probes');
+  } finally { await h.worker.close(); }
+});
 
 test('one serialized worker serves simultaneous callers and owns stdio only', async () => {
   const h = harness((child, request) => setImmediate(() => reply(child, request.id, request.params)));
