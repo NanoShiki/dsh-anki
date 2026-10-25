@@ -17,6 +17,12 @@
 !/package.json
 !/runtime-sha256.json
 !/worker-client.js
+!/CONTRIBUTING.md
+
+# Repository policy and CI, nothing else.
+!/.github/
+/.github/*
+!/.github/pull_request_template.md
 
 !/backend/
 /backend/*

@@ -38,6 +38,10 @@
 
 源码仓库：[NanoShiki/dsh-anki](https://github.com/NanoShiki/dsh-anki)。
 
+## 参与贡献
+
+**本仓库只接受 Pull Request。** `main` 分支已启用保护：直接 push、强制推送和删除都会被拒绝，仓库所有者也不例外。请从 `main` 拉分支、按 PR 模板提交，并等 `test` 检查通过后合并；流程、本地测试命令与必须保持的不变量见 [CONTRIBUTING.md](<CONTRIBUTING.md>)。
+
 ## 登录与同步
 
 - 账号密码**只在仅所有者可见的同步页**输入，不要发到聊天里。密码是临时的，提交后即从表单清除；可复用的登录令牌与设置通过 **Windows 当前用户 DPAPI** 加密保存，并额外绑定工作区路径，没有明文降级。换一个 Windows 用户或换路径可能需要重新登录；退出登录会删除已存令牌。本插件不读取其它 Anki 安装的凭据。
@@ -93,3 +97,5 @@ A native DSH sidebar and an `anki` AI tool sharing **one independent, per-DSH-pr
 **Backups:** disable the plugin, wait for its worker to exit, then copy the entire data directory — not a live SQLite file. Import media writes are not atomically rolled back. A whole-directory copy includes protected account state; do not share it.
 
 **Verification:** automated checks cover isolated native collections, localhost sync services, DPAPI, transport, scheduling, structural client behavior and an isolated Chromium layout fixture. They do not establish that a particular live installation, real AnkiWeb account or cloud connection works. Use your existing authenticated plugin manager and GUI; no replacement server is required. See the [acceptance checklist](<ACCEPTANCE.md>) and [verification record](<VERIFICATION.md>). Licensed [AGPL-3.0-or-later](<LICENSE>), with the [Anki upstream notice](<ANKI-LICENSE.txt>), [third-party notices](<THIRD-PARTY-NOTICES.md>) and [Python license](<runtime/LICENSE.txt>).
+
+**Contributing:** changes are accepted **only through pull requests**; `main` is protected against direct pushes, force pushes and deletion, including for the owner. See [CONTRIBUTING.md](<CONTRIBUTING.md>).
