@@ -52,7 +52,10 @@ test('native main/sidebar registration, baseline React only, locale file parity'
   assert.equal(f.registered[0].meta.key, 'anki-workspace');
   assert.equal(f.registered[1].meta.id, 'anki-workspace');
   for (const language of ['en', 'zh']) {
-    const expected = JSON.parse(await readFile(new URL(`../locale/${language}.json`, import.meta.url), 'utf8'));
+    // `meta` is host-facing plugin-manager display metadata (read from the packaged
+    // locale file), not a client UI string, so the inlined dictionaries omit it.
+    const { meta, ...expected } = JSON.parse(await readFile(new URL(`../locale/${language}.json`, import.meta.url), 'utf8'));
+    assert.deepEqual(meta.title, 'Anki');
     assert.deepEqual(JSON.parse(JSON.stringify(f.dictionaries[language])), expected);
   }
 });
@@ -60,7 +63,7 @@ test('renamed package, native bundle and installer identity remain aligned', asy
   const manifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
   const patch = await readFile(new URL('../cordis.patch.yml', import.meta.url), 'utf8');
   assert.equal(manifest.name, '@local/dsh-anki');
-  assert.equal(manifest.version, '1.4.0');
+  assert.equal(manifest.version, '1.4.1');
   assert.equal(manifest.repository.url, 'git+https://github.com/NanoShiki/dsh-anki.git');
   assert.equal(fixture().bundle.id, manifest.name);
   assert.match(patch, /^\s+- id: local-anki$/m);

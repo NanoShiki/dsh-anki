@@ -1,4 +1,8 @@
-# Verification record — 1.4.0 / 2026-10-25
+# Verification record — 1.4.1 / 2026-10-25
+
+## 1.4.1 plugin display name
+
+Both locale files now carry a `meta.title`/`meta.description` block, which is the metadata DSH's plugin manager reads to label an installed plugin (`meta.title`, falling back to the technical package name). The list card therefore shows **Anki** in both languages while the technical identity stays `@local/dsh-anki`. No runtime, collection, worker, sync or UI behavior changed; the client still reads the same locale dictionaries.
 
 ## 1.4.0 bundled headless core
 

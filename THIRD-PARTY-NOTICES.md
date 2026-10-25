@@ -15,7 +15,7 @@ The DSH Anki Workspace source is licensed under **GNU AGPL version 3 or later**,
 - [ANKI-LICENSE.txt](<ANKI-LICENSE.txt>) is an exact copy of the inspected upstream license notice. Anki is AGPL-3.0-or-later, with specified BSD-3 contributions and other separately licensed components. Refer to the pinned source's LICENSE/CONTRIBUTORS and the installed distribution's notices for the complete component/dependency information. Do not assume this notice replaces them.
 - Anki's trademark/logo rights remain with their respective owners; this integration does not redistribute Anki's logo.
 
-Anki 核心及其运行依赖随本插件分发，未修改上游 wheel 内容。对应源码（含固定提交、翻译子模块、锁定的 Rust 依赖和构建说明）与 Python 依赖源码在同一 [v1.4.0 Release](https://github.com/NanoShiki/dsh-anki/releases/tag/v1.4.0) 提供，无需额外账号或费用。源码包不是安装前置项；普通用户只需要插件 `.tgz`。源码提供不表示已经完成可复现的逐位重建。
+Anki 核心及其运行依赖随本插件分发，未修改上游 wheel 内容。对应源码（含固定提交、翻译子模块、锁定的 Rust 依赖和构建说明）与 Python 依赖源码在同一 [v1.4.1 Release](https://github.com/NanoShiki/dsh-anki/releases/tag/v1.4.1) 提供，无需额外账号或费用。源码包不是安装前置项；普通用户只需要插件 `.tgz`。源码提供不表示已经完成可复现的逐位重建。
 
 ### Bundled Python dependencies / Python 依赖
 

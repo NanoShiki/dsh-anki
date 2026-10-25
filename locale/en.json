@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Anki",
+    "description": "Native headless Anki workspace with a bundled Anki core: browse, edit, add and review notes, import/export APKG, and sync with AnkiWeb."
+  },
   "panel": "Anki",
   "title": "Anki workspace",
   "subtitle": "Your local collection. A little progress, every day.",

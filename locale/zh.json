@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Anki",
+    "description": "原生无界面 Anki 工作区，内置 Anki 核心：浏览、编辑、添加与复习笔记，导入导出 APKG，并与 AnkiWeb 同步。"
+  },
   "panel": "Anki",
   "title": "Anki 工作区",
   "subtitle": "本地收藏，每天积累一点进步。",
