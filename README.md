@@ -6,15 +6,26 @@
 
 ## 安装与升级
 
-**环境要求：** Windows x64、DSH `^0.2.1-rc.2`、内置 CPython 3.13.5；外部 Anki **26.05**，build `e64c6b1a`（`e64c6b1aee3e8d668fb8bbe084beada8e070d985`）。Anki 核心**不随包分发**，默认 `ankiPackages` 为 `D:/Anki/app_packages`。
+**环境要求：** Windows x64、DSH `^0.2.1-rc.2`、内置 CPython 3.13.5；外部 Anki **26.05**，build `e64c6b1a`（`e64c6b1aee3e8d668fb8bbe084beada8e070d985`）。Anki 核心**不随包分发**。**仅支持 Windows x64；需自行安装 Anki 26.05，并把 `ankiPackages` 指向其 `app_packages` 目录。** 默认值 `D:/Anki/app_packages` 只是作者机器的路径，不会自动适配你的安装位置。
 
-**已装同名包 `@local/dsh-anki` 的 1.2.x / 1.3.0：** 等待同步结束 → 在插件管理器中禁用插件并等后台 Python 进程退出 → 备份整个数据目录 → 用 `D:/Anki/dsh-anki-1.3.1.tgz` 更新同一个包 → 保留原有设置与数据目录 → 重新启用，并按管理器提示刷新或重启。本次只改文档，不迁移、不清空牌库。
+### 首次安装（公开 Release 安装包）
+
+1. 自行安装 [Anki 26.05](https://github.com/ankitects/anki/releases/tag/26.05)，找到其实际使用的 `app_packages` 目录；插件运行时不需要启动 Anki 桌面程序。
+2. 从 [v1.3.1 Release](https://github.com/NanoShiki/dsh-anki/releases/tag/v1.3.1) 下载 [dsh-anki-1.3.1.tgz](https://github.com/NanoShiki/dsh-anki/releases/download/v1.3.1/dsh-anki-1.3.1.tgz)，不要用 GitHub 自动生成的 Source code 压缩包代替。
+3. 在已认证的 DSH 插件管理器中导入下载的 `.tgz` 安装包；启用前将 `ankiPackages` 设置为第 1 步找到的目录。缺少外部核心时会报 `core-missing`，安装包本身不会下载 Anki 核心。
+4. 保持 `dataDir` 为独立的插件数据目录，启用插件并按管理器提示刷新/重启，再打开「Anki → 浏览」。不要指向 Anki 桌面版牌库。
+
+本项目通过 GitHub Release 分发安装包，**未发布到 npm**；`@local/dsh-anki` 与 `private: true` 是现有包身份/防止误发 npm 的设置，升级时保留它们，避免改变包身份。这里不承诺未经验证的 GitHub 源码直装路径。
+
+安装包 SHA-256：`778c3be27c2d3f9621c16cf4c24add6d9b4d12b7acfbe1e0496314e0fd4e22b6`。该安装包对应提交 `3c615c9`；本节公开下载说明为随后补充，包内 README 仍为该提交的版本。
+
+**已装同名包 `@local/dsh-anki` 的 1.2.x / 1.3.0：** 等待同步结束 → 在插件管理器中禁用插件并等后台 Python 进程退出 → 备份整个数据目录 → 用 [公开 Release 安装包](https://github.com/NanoShiki/dsh-anki/releases/download/v1.3.1/dsh-anki-1.3.1.tgz) 更新同一个包 → 保留原有设置与数据目录 → 重新启用，并按管理器提示刷新或重启。本次只改文档，不迁移、不清空牌库。
 
 **从旧包名 `@local/dsh-anki-workspace` 迁移（一次性）：** 改名相当于换了一个新包身份，不能就地覆盖安装。
 
 1. 先等待同步结束，在已认证的 DSH **插件管理器**中禁用旧包，并等它的 Python 进程退出；只关闭标签页并不够。**绝不要同时启用新旧两个包**——两者会有意共用同一个服务和牌库。
 2. 记录自定义的 `dataDir`、`ankiPackages`、`pythonPath`，在停用状态下备份整个数据目录。旧包保持禁用，或通过管理器卸载，但**不要删除数据目录**。
-3. 导入 `D:/Anki/dsh-anki-1.3.1.tgz`，包名为 `@local/dsh-anki`；启用前把原自定义设置填回，尤其要保证 `dataDir` 完全一致。
+3. 导入 [公开 Release 安装包](https://github.com/NanoShiki/dsh-anki/releases/download/v1.3.1/dsh-anki-1.3.1.tgz)，包名为 `@local/dsh-anki`；启用前把原自定义设置填回，尤其要保证 `dataDir` 完全一致。
 4. 打开「**Anki → 浏览**」确认牌组与笔记仍在。默认数据仍是**同一个 DSH 配置**下的 `<profileContext.dir>/data/anki-workspace`：改名不会搬迁或删除它，AI 工具 `anki` 与侧栏名称也都不变。
 5. **不要把 `dataDir` 指向 Anki 桌面版的配置目录。** 如果安装被拒绝，请保留管理器的错误信息，不要为了「修好」而删除牌库。
 
@@ -64,7 +75,9 @@ A native DSH sidebar and an `anki` AI tool sharing **one independent, per-DSH-pr
 
 **Requirements:** Windows x64, DSH `^0.2.1-rc.2`, bundled CPython 3.13.5, and an external Anki **26.05** build `e64c6b1a` (default `ankiPackages`: `D:/Anki/app_packages`). The Anki core is not bundled.
 
-**Upgrade:** wait for sync, disable the plugin and let its Python worker exit, back up the whole data directory, then update the same `@local/dsh-anki` package with `D:/Anki/dsh-anki-1.3.1.tgz`, keeping your settings and data directory. Migrating from the old `@local/dsh-anki-workspace` identity is a one-time new-package install: never enable both packages together, keep the data directory, and never point `dataDir` at an Anki desktop profile.
+**Install:** Windows x64 only; needs a separately installed Anki 26.05 (point `ankiPackages` at its `app_packages` folder). Download the `.tgz` asset from the [public v1.3.1 release](https://github.com/NanoShiki/dsh-anki/releases/tag/v1.3.1), import it through the authenticated DSH plugin manager, configure `ankiPackages`, then enable the plugin. The default path is author-specific, not auto-detected. The package is not published to npm; its existing `@local/dsh-anki` identity is retained. The release archive is unchanged from commit `3c615c9`; these public-download instructions were added afterward.
+
+**Upgrade:** wait for sync, disable the plugin and let its Python worker exit, back up the whole data directory, then update the same `@local/dsh-anki` package with [the public release archive](https://github.com/NanoShiki/dsh-anki/releases/download/v1.3.1/dsh-anki-1.3.1.tgz), keeping your settings and data directory. Migrating from the old `@local/dsh-anki-workspace` identity is a one-time new-package install: never enable both packages together, keep the data directory, and never point `dataDir` at an Anki desktop profile.
 
 **Sync:** credentials are entered only on the owner-only Sync page and stored with Windows current-user DPAPI, bound to the workspace path, with no plaintext fallback. Manual sync runs native collection sync and then native media sync. Automatic sync is on by default and is scheduled by the host. **Every full upload or download waits for explicit confirmation** with a mandatory overwrite warning; AI and automatic sync can never confirm a direction. Both full directions snapshot the local collection, media and media database first — **a local backup cannot restore overwritten cloud data**. Failed or cancelled sync can leave partially completed changes; cancellation is not rollback.
 
