@@ -6,6 +6,16 @@ After DSH moved from 0.2.1-rc.2 to 0.2.1-rc.3, the market plugin (`dshmarket`) r
 
 Fix: declare those peers as `^0.2.1-rc.2`, which admits the rc.3 host and later 0.2.1 patches. Re-running the same analyzer over a profile with the new manifest reports **zero risks and zero warnings**. `tests/check_manifest.py` now fails the build if `engines.dsh` or any `@deepseek-ai/dsh*` peer is an exact pin, so a routine DSH patch release cannot silently reintroduce the banner. The 48-check real Host/Gateway smoke test passes on the rc.3 runtime, and the bundled core/runtime files are byte-identical (352 + 34 pinned hashes unchanged).
 
+## Source (`github:`) install and market update detection
+
+Installing without the prebuilt archive is a supported alternative, verified 2026-10-27 on the 0.2.1-rc.3 runtime:
+
+- `pnpm add github:NanoShiki/dsh-anki` in an isolated directory installs `@local/dsh-anki@1.4.2` and records the floating spec `github:NanoShiki/dsh-anki` (resolved commit in the lockfile). The packed dependency keeps `core/` and `runtime/` but drops `tests/`: all 352 bundled-core files and 34 runtime files match `core-sha256.json`/`runtime-sha256.json`.
+- The source-installed copy runs its own isolated collection through the bundled Python/core (`status` reports 26.05; deck create, note add and search succeed), so the package does not depend on the checkout location.
+- Market update detection was exercised with `dshmarket/lib/updates.js::checkUpdates` on a profile whose dependency is `github:NanoShiki/dsh-anki`: installed `1.4.2` reports `updateAvailable:false`, installed `1.4.1` reports `updateAvailable:true` against the current `main` version — the same version comparison the market UI uses. Archive-URL installs, by contrast, never report updates without an npm mapping.
+
+This path pulls the whole repository and re-resolves dependencies; the release `.tgz` stays the hashed prebuilt option. Both share one package identity and data directory.
+
 ## 1.4.1 plugin display name
 
 Both locale files now carry a `meta.title`/`meta.description` block, which is the metadata DSH's plugin manager reads to label an installed plugin (`meta.title`, falling back to the technical package name). The list card therefore shows **Anki** in both languages while the technical identity stays `@local/dsh-anki`. No runtime, collection, worker, sync or UI behavior changed; the client still reads the same locale dictionaries.
