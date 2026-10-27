@@ -1,4 +1,10 @@
-# Verification record — 1.4.1 / 2026-10-25
+# Verification record — 1.4.2 / 2026-10-27
+
+## 1.4.2 DSH 0.2.1-rc.3 compatibility
+
+After DSH moved from 0.2.1-rc.2 to 0.2.1-rc.3, the market plugin (`dshmarket`) reported a compatibility-risk banner for this plugin. Reproduced with the market's own analyzer (`dshmarket/lib/compatibility.js::assessCompatibility`) against the installed profile: both host peers were declared as exact versions `0.2.1-rc.2` while the runtime provides `0.2.1-rc.3`, producing two `aboveMax` risks (`@deepseek-ai/dsh-tools`, `@deepseek-ai/dsh-typert-protocol`).
+
+Fix: declare those peers as `^0.2.1-rc.2`, which admits the rc.3 host and later 0.2.1 patches. Re-running the same analyzer over a profile with the new manifest reports **zero risks and zero warnings**. `tests/check_manifest.py` now fails the build if `engines.dsh` or any `@deepseek-ai/dsh*` peer is an exact pin, so a routine DSH patch release cannot silently reintroduce the banner. The 48-check real Host/Gateway smoke test passes on the rc.3 runtime, and the bundled core/runtime files are byte-identical (352 + 34 pinned hashes unchanged).
 
 ## 1.4.1 plugin display name
 
