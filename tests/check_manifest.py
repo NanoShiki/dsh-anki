@@ -39,8 +39,12 @@ def check_manifest():
     for required in ('core/**', 'third-party-licenses/**', 'core-lock.json', 'core-sha256.json'):
         if required not in files:
             fail(f'package files must include {required}')
-    if manifest.get('private') is not True:
-        fail('package must stay private to avoid an unintended npm publish')
+    if manifest.get('private') is True:
+        fail('package must be publishable to the npm registry')
+    if (manifest.get('publishConfig') or {}).get('access') != 'public':
+        fail('publishConfig.access must stay public for an unscoped install')
+    if not manifest.get('repository', {}).get('url', '').endswith('github.com/NanoShiki/dsh-anki.git'):
+        fail('repository must point at NanoShiki/dsh-anki so the catalog can map the npm package')
     return manifest
 
 

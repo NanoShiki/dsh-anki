@@ -63,7 +63,7 @@ test('renamed package, native bundle and installer identity remain aligned', asy
   const manifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
   const patch = await readFile(new URL('../cordis.patch.yml', import.meta.url), 'utf8');
   assert.equal(manifest.name, '@nanoshiki/dsh-anki');
-  assert.equal(manifest.version, '2.0.0');
+  assert.equal(manifest.version, '2.0.1');
   assert.equal(manifest.repository.url, 'git+https://github.com/NanoShiki/dsh-anki.git');
   assert.equal(fixture().bundle.id, manifest.name);
   assert.match(patch, /^\s+- id: local-anki$/m);
