@@ -29,10 +29,10 @@ with tarfile.open(archive, 'r:gz') as release:
         assert f'package/{name}' in files, f'missing: {name}'
     assert len(files['package/LICENSE']) > 30000
     manifest = json.loads(files['package/package.json'])
-    assert manifest['name'] == '@local/dsh-anki' and manifest['version'] == '1.4.2'
+    assert manifest['name'] == '@nanoshiki/dsh-anki' and manifest['version'] == '2.0.0'
     assert manifest['repository']['url'] == 'git+https://github.com/NanoShiki/dsh-anki.git'
-    assert b"id: '@local/dsh-anki'," in files['package/client.js']
-    assert b"name: '@local/dsh-anki'" in files['package/cordis.patch.yml']
+    assert b"id: '@nanoshiki/dsh-anki'," in files['package/client.js']
+    assert b"name: '@nanoshiki/dsh-anki'" in files['package/cordis.patch.yml']
     assert b'id: local-anki\n' in files['package/cordis.patch.yml']
     assert b'dsh-anki-workspace' not in files['package/cordis.patch.yml']
     assert set(manifest['scripts']) == {'test:client', 'test:backend'}, 'unexpected lifecycle scripts'

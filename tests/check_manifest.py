@@ -27,7 +27,7 @@ def sha256(path):
 
 def check_manifest():
     manifest = json.loads((ROOT / 'package.json').read_text(encoding='utf-8'))
-    if manifest['name'] != '@local/dsh-anki':
+    if manifest['name'] != '@nanoshiki/dsh-anki':
         fail(f"package name changed: {manifest['name']}")
     if not re.fullmatch(r'\d+\.\d+\.\d+', manifest['version']):
         fail(f"version is not semver: {manifest['version']}")

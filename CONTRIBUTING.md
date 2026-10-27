@@ -38,7 +38,7 @@ ELECTRON_RUN_AS_NODE=1 DSH_INSTALL_DIR="<DSH>/resources/app.asar/dsh" \
 
 ## 必须保持的不变量
 
-- **数据与身份**：包名 `@local/dsh-anki`、服务/命名空间 `ankiWorkspace`、AI 工具 `anki`、面板 `anki-workspace`、默认数据目录 `<profileContext.dir>/data/anki-workspace` 不要随意改动；改包名视为新身份，需要迁移说明。
+- **数据与身份**：包名 `@nanoshiki/dsh-anki`（2.0.0 起；1.4.x 及更早为 `@local/dsh-anki`）、服务/命名空间 `ankiWorkspace`、AI 工具 `anki`、面板 `anki-workspace`、默认数据目录 `<profileContext.dir>/data/anki-workspace` 不要随意改动；改包名视为新身份，必须同时提供迁移说明与不删数据目录的步骤。
 - **牌库安全**：测试与 CI 只能使用隔离的临时牌库；**提交里绝不能包含**真实牌库、媒体、备份、DPAPI 凭据、会话记录、构建缓存或个人路径。
 - **同步安全**：全量上传/下载必须保留明确的一次性确认；AI 与自动同步都不能代替用户确认方向。
 - **许可与来源**：升级或新增内置核心/依赖时，必须同时更新 `core-lock.json`、`core-sha256.json` 与 `third-party-licenses/`，并在 Release 中提供对应源码；不得只更新二进制。

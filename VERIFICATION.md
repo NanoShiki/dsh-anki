@@ -1,4 +1,10 @@
-# Verification record — 1.4.2 / 2026-10-27
+# Verification record — 2.0.0 / 2026-10-27
+
+## 2.0.0 package identity rename
+
+The technical package identity moves from `@local/dsh-anki` to `@nanoshiki/dsh-anki` so the plugin manager card no longer reads as a local package. `cordis.patch.yml` keeps its entry id `local-anki`, and the service namespace `ankiWorkspace`, AI tool `anki`, panel `anki-workspace`, locale namespace and default profile-relative `data/anki-workspace` directory are unchanged, so the collection is reused rather than migrated. Tests, the release verifier and the manifest guard assert the new identity; the historical 1.2.x–1.4.x sections below intentionally keep the old name.
+
+Because a package rename is a new identity, existing `@local/dsh-anki` installs cannot be upgraded in place: the migration steps in the README require disabling the old package, keeping the data directory, and installing the new one with the same `dataDir`.
 
 ## 1.4.2 DSH 0.2.1-rc.3 compatibility
 
