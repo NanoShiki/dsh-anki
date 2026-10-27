@@ -2,15 +2,15 @@
 
 独立的 DSH 插件：原生 Anki 侧栏与 `anki` AI 工具共用**仅属于当前 DSH 配置的一份独立牌库**，由真实的无界面 Anki 核心驱动。不启动 Anki 桌面窗口、AnkiConnect、Qt 或替代 Web 服务。本项目是独立集成，不是 Anki 官方产品。
 
-**1.4.1 开箱即用**：安装包包含 CPython、Anki 26.05 无界面核心及其全部 Python 运行依赖，安装后无需另外安装 Anki、Python 或 pip，也无需填写核心路径。沿用浅色卡片、青绿色强调色、顶部六格统计，以及「牌组 — 搜索列表 — 编辑器」布局；窄窗口自动适配，各区域内部滚动。
+**1.4.2 开箱即用**：安装包包含 CPython、Anki 26.05 无界面核心及其全部 Python 运行依赖，安装后无需另外安装 Anki、Python 或 pip，也无需填写核心路径。沿用浅色卡片、青绿色强调色、顶部六格统计，以及「牌组 — 搜索列表 — 编辑器」布局；窄窗口自动适配，各区域内部滚动。
 
 ## 安装与升级
 
-**环境要求：** Windows x64、DSH `^0.2.1-rc.2`。随包提供 CPython 3.13.5、官方 PyPI Anki **26.5 / 26.05** Windows x64 wheel 及其依赖；不包含 Qt 或 Anki 桌面界面。**不要求已有 Anki/Python 安装，不在首次启动时下载运行依赖。** AnkiWeb 同步仍需网络和自己的账号。
+**环境要求：** Windows x64、DSH `^0.2.1-rc.2`（已在 **0.2.1-rc.3** 验证；`@deepseek-ai/dsh*` peer 声明为范围而不是精确版本）。随包提供 CPython 3.13.5、官方 PyPI Anki **26.5 / 26.05** Windows x64 wheel 及其依赖；不包含 Qt 或 Anki 桌面界面。**不要求已有 Anki/Python 安装，不在首次启动时下载运行依赖。** AnkiWeb 同步仍需网络和自己的账号。
 
 ### 首次安装（公开 Release 安装包）
 
-1. 从 [v1.4.1 Release](https://github.com/NanoShiki/dsh-anki/releases/tag/v1.4.1) 下载 [dsh-anki-1.4.1.tgz](https://github.com/NanoShiki/dsh-anki/releases/download/v1.4.1/dsh-anki-1.4.1.tgz)，不要用 GitHub 自动生成的 Source code 压缩包代替安装包。
+1. 从 [v1.4.2 Release](https://github.com/NanoShiki/dsh-anki/releases/tag/v1.4.2) 下载 [dsh-anki-1.4.2.tgz](https://github.com/NanoShiki/dsh-anki/releases/download/v1.4.2/dsh-anki-1.4.2.tgz)，不要用 GitHub 自动生成的 Source code 压缩包代替安装包。
 2. 在已认证的 DSH 插件管理器中导入 `.tgz`，保持 `pythonPath`、`ankiPackages` 为空，即自动使用包内运行时与核心。
 3. 启用插件并按管理器提示刷新/重启，打开「Anki → 浏览」。`dataDir` 留空即使用当前 DSH 配置的独立数据目录；不要指向 Anki 桌面版牌库。
 
@@ -34,7 +34,7 @@
 
 1. 先等待同步结束，在已认证的 DSH **插件管理器**中禁用旧包，并等它的 Python 进程退出；只关闭标签页并不够。**绝不要同时启用新旧两个包**——两者会有意共用同一个服务和牌库。
 2. 记录自定义的 `dataDir`、`ankiPackages`、`pythonPath`，在停用状态下备份整个数据目录。旧包保持禁用，或通过管理器卸载，但**不要删除数据目录**。
-3. 导入 [公开 Release 安装包](https://github.com/NanoShiki/dsh-anki/releases/download/v1.4.1/dsh-anki-1.4.1.tgz)，包名为 `@local/dsh-anki`；启用前只把 `dataDir` 填回原值（必须完全一致），`pythonPath` / `ankiPackages` 留空以使用 1.4.1 内置运行时与核心。
+3. 导入 [公开 Release 安装包](https://github.com/NanoShiki/dsh-anki/releases/download/v1.4.2/dsh-anki-1.4.2.tgz)，包名为 `@local/dsh-anki`；启用前只把 `dataDir` 填回原值（必须完全一致），`pythonPath` / `ankiPackages` 留空以使用 1.4.2 内置运行时与核心。
 4. 打开「**Anki → 浏览**」确认牌组与笔记仍在。默认数据仍是**同一个 DSH 配置**下的 `<profileContext.dir>/data/anki-workspace`：改名不会搬迁或删除它，AI 工具 `anki` 与侧栏名称也都不变。
 5. **不要把 `dataDir` 指向 Anki 桌面版的配置目录。** 如果安装被拒绝，请保留管理器的错误信息，不要为了「修好」而删除牌库。
 
@@ -84,13 +84,13 @@ AI 的读取操作（含 `sync.status`）在只读模式下即可工作。**修�
 
 ## English
 
-A native DSH sidebar and an `anki` AI tool sharing **one independent, per-DSH-profile collection**, powered by real headless Anki — no Anki desktop window, AnkiConnect, Qt or replacement web server is started. Independent integration, not an official Anki product. Version 1.4.1 bundles the headless core and its Python dependencies for out-of-the-box installation, retaining the native responsive layout.
+A native DSH sidebar and an `anki` AI tool sharing **one independent, per-DSH-profile collection**, powered by real headless Anki — no Anki desktop window, AnkiConnect, Qt or replacement web server is started. Independent integration, not an official Anki product. Version 1.4.2 bundles the headless core and its Python dependencies for out-of-the-box installation, retaining the native responsive layout.
 
-**Requirements:** Windows x64 and DSH `^0.2.1-rc.2`. CPython 3.13.5, official Anki **26.5 / 26.05** headless core and all its Python runtime dependencies are bundled. No separate Anki/Python/pip installation or first-start dependency download is required. Qt is not bundled.
+**Requirements:** Windows x64 and DSH `^0.2.1-rc.2` (verified on **0.2.1-rc.3**; `@deepseek-ai/dsh*` peers are declared as ranges, not exact pins). CPython 3.13.5, official Anki **26.5 / 26.05** headless core and all its Python runtime dependencies are bundled. No separate Anki/Python/pip installation or first-start dependency download is required. Qt is not bundled.
 
-**Install:** Download the `.tgz` asset from the [v1.4.1 release](https://github.com/NanoShiki/dsh-anki/releases/tag/v1.4.1), import through the authenticated DSH plugin manager, leave `ankiPackages` and `pythonPath` empty, then enable and refresh/restart as instructed. Explicit absolute overrides remain supported, with no silent external fallback. The package is not published to npm; its existing `@local/dsh-anki` identity is retained.
+**Install:** Download the `.tgz` asset from the [v1.4.2 release](https://github.com/NanoShiki/dsh-anki/releases/tag/v1.4.2), import through the authenticated DSH plugin manager, leave `ankiPackages` and `pythonPath` empty, then enable and refresh/restart as instructed. Explicit absolute overrides remain supported, with no silent external fallback. The package is not published to npm; its existing `@local/dsh-anki` identity is retained.
 
-**Upgrade:** wait for sync, disable the plugin and let its Python worker exit, back up the whole data directory, then update the same `@local/dsh-anki` package with [the public release archive](https://github.com/NanoShiki/dsh-anki/releases/download/v1.4.1/dsh-anki-1.4.1.tgz), keeping your data directory unchanged and clearing old `ankiPackages` / `pythonPath` overrides to select the bundled runtime. Migrating from the old `@local/dsh-anki-workspace` identity is a one-time new-package install: never enable both packages together, keep the data directory, and never point `dataDir` at an Anki desktop profile.
+**Upgrade:** wait for sync, disable the plugin and let its Python worker exit, back up the whole data directory, then update the same `@local/dsh-anki` package with [the public release archive](https://github.com/NanoShiki/dsh-anki/releases/download/v1.4.2/dsh-anki-1.4.2.tgz), keeping your data directory unchanged and clearing old `ankiPackages` / `pythonPath` overrides to select the bundled runtime. Migrating from the old `@local/dsh-anki-workspace` identity is a one-time new-package install: never enable both packages together, keep the data directory, and never point `dataDir` at an Anki desktop profile.
 
 **Sync:** credentials are entered only on the owner-only Sync page and stored with Windows current-user DPAPI, bound to the workspace path, with no plaintext fallback. Manual sync runs native collection sync and then native media sync. Automatic sync is on by default and is scheduled by the host. **Every full upload or download waits for explicit confirmation** with a mandatory overwrite warning; AI and automatic sync can never confirm a direction. Both full directions snapshot the local collection, media and media database first — **a local backup cannot restore overwritten cloud data**. Failed or cancelled sync can leave partially completed changes; cancellation is not rollback.
 

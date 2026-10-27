@@ -26,7 +26,13 @@ runtime/python.exe -B -m unittest discover -s tests -p "test_*.py"
 
 # 真实 Host/Gateway（需要本机已安装 DSH）
 ELECTRON_RUN_AS_NODE=1 "<DSH 安装目录>/DeepSeek Harness.exe" tests/host-smoke.mjs
+
+# DSH 升级后：用插件市场自己的分析器复查 peer 兼容性（需已装 dshmarket，缺省会跳过）
+ELECTRON_RUN_AS_NODE=1 DSH_INSTALL_DIR="<DSH>/resources/app.asar/dsh" \
+  "<DSH 安装目录>/DeepSeek Harness.exe" tests/compat-check.mjs
 ```
+
+`@deepseek-ai/dsh*` 的 peer 必须写成范围（如 `^0.2.1-rc.2`）。精确版本会让 DSH 每次补丁升级都在插件市场报「兼容性风险」，`check_manifest.py` 会拦下这种声明。
 
 改动加载器或打包内容时，还要构建 tgz 并跑 `tests/verify_release.py` 与 `tests/self-contained-smoke.mjs`（解压到无关目录、确认导入只来自包内）。
 
