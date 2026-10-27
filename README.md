@@ -16,19 +16,9 @@
 
 插件管理器里的显示名称是 **Anki**（来自包内 `locale/*.json` 的 `meta.title`）；`@local/dsh-anki` 只是技术包名，只在详情页用于排查安装位置。
 
-### 源码安装（可选，插件市场能提示更新）
-
-如果希望插件市场像普通插件那样按版本提示更新，可以改用 GitHub 源码安装（已验证，见 [VERIFICATION.md](<VERIFICATION.md>)）：
-
-1. 插件管理器 → **添加插件**，输入 `github:NanoShiki/dsh-anki`（等价命令 `dsh plugin add github:NanoShiki/dsh-anki`）。
-2. 安装后依赖会记录为 `github:NanoShiki/dsh-anki`，跟随仓库 `main` 的最新提交；市场按仓库 `package.json` 的 `version` 判断是否有更新，因此每次发版都会在界面里提示。
-3. 从预构建安装切换到源码安装时，先卸载旧安装再装，`dataDir` 保持不变即可继续用原来的牌库。
-
-源码安装会拉取整个仓库并重新解析依赖，首次安装比 `.tgz` 慢、也不带预构建包的哈希校验；只想要稳定安装的用户继续用上面的 Release 包即可。
-
 `pythonPath` / `ankiPackages` 仅保留为高级用户的绝对路径覆盖项，不再使用作者机器上的路径，也不会静默回退到外部安装。完整包损坏或缺文件时，请重新安装完整 `.tgz`，不是另装 Python/Anki。
 
-本项目通过 GitHub Release 分发预构建安装包，**未发布到 npm**；预构建安装与源码安装共用同一个包身份 `@local/dsh-anki`（`private: true` 用于防止误发 npm），切换安装方式时保留它即可。
+本项目通过 GitHub Release 分发安装包，**未发布到 npm**；`@local/dsh-anki` 与 `private: true` 是现有包身份/防止误发 npm 的设置，升级时保留它们，避免改变包身份。这里不承诺未经验证的 GitHub 源码直装路径。
 
 安装包校验值随 Release 提供；核心逐文件校验值见 [core-sha256.json](<core-sha256.json>)，官方 wheel 下载地址、版本与 SHA-256 见 [core-lock.json](<core-lock.json>)。
 
@@ -99,8 +89,6 @@ A native DSH sidebar and an `anki` AI tool sharing **one independent, per-DSH-pr
 **Requirements:** Windows x64 and DSH `^0.2.1-rc.2` (verified on **0.2.1-rc.3**; `@deepseek-ai/dsh*` peers are declared as ranges, not exact pins). CPython 3.13.5, official Anki **26.5 / 26.05** headless core and all its Python runtime dependencies are bundled. No separate Anki/Python/pip installation or first-start dependency download is required. Qt is not bundled.
 
 **Install:** Download the `.tgz` asset from the [v1.4.2 release](https://github.com/NanoShiki/dsh-anki/releases/tag/v1.4.2), import through the authenticated DSH plugin manager, leave `ankiPackages` and `pythonPath` empty, then enable and refresh/restart as instructed. Explicit absolute overrides remain supported, with no silent external fallback. The package is not published to npm; its existing `@local/dsh-anki` identity is retained.
-
-**Source install (optional, market-updatable):** add `github:NanoShiki/dsh-anki` in the plugin manager (`dsh plugin add github:NanoShiki/dsh-anki`). The dependency is then recorded as a GitHub spec that follows `main`; the market compares the repository's `package.json` version and offers updates when a release bumps it. This pulls the whole repository and resolves dependencies instead of installing the verified prebuilt archive, so use the release `.tgz` if you prefer the hashed package. Both forms share the same `@local/dsh-anki` identity and data directory.
 
 **Upgrade:** wait for sync, disable the plugin and let its Python worker exit, back up the whole data directory, then update the same `@local/dsh-anki` package with [the public release archive](https://github.com/NanoShiki/dsh-anki/releases/download/v1.4.2/dsh-anki-1.4.2.tgz), keeping your data directory unchanged and clearing old `ankiPackages` / `pythonPath` overrides to select the bundled runtime. Migrating from the old `@local/dsh-anki-workspace` identity is a one-time new-package install: never enable both packages together, keep the data directory, and never point `dataDir` at an Anki desktop profile.
 
