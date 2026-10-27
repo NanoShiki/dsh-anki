@@ -11,14 +11,14 @@
 ### 首次安装（公开 Release 安装包）
 
 1. 从 [latest Release](https://github.com/NanoShiki/dsh-anki/releases/latest) 下载 `dsh-anki.tgz`（每个 Release 都附带这个固定文件名，`releases/latest/download/dsh-anki.tgz` 永远指向最新正式版），不要用 GitHub 自动生成的 Source code 压缩包代替安装包。
-2. 在已认证的 DSH 插件管理器中导入 `.tgz`，保持 `pythonPath`、`ankiPackages` 为空，即自动使用包内运行时与核心。
+2. 更简单的方式：在插件管理器中直接添加包名 `@nanoshiki/dsh-anki`（npm 发布后市场可检测更新）；或导入上一步的 `.tgz`。两种方式都保持 `pythonPath`、`ankiPackages` 为空，即自动使用包内运行时与核心。
 3. 启用插件并按管理器提示刷新/重启，打开「Anki → 浏览」。`dataDir` 留空即使用当前 DSH 配置的独立数据目录；不要指向 Anki 桌面版牌库。
 
 插件管理器里的显示名称是 **Anki**（来自包内 `locale/*.json` 的 `meta.title`）；技术包名是 `@nanoshiki/dsh-anki`（2.0.0 起；1.4.x 及更早为 `@local/dsh-anki`），只在详情页用于排查安装位置。
 
 `pythonPath` / `ankiPackages` 仅保留为高级用户的绝对路径覆盖项，不再使用作者机器上的路径，也不会静默回退到外部安装。完整包损坏或缺文件时，请重新安装完整 `.tgz`，不是另装 Python/Anki。
 
-本项目通过 GitHub Release 分发预构建安装包，**未发布到 npm**；2.0.0 起包身份为 `@nanoshiki/dsh-anki`，`private: true` 用于防止误发 npm。升级方式仍是下载新 Release 包后卸载旧包再安装，数据目录保持不变。
+2.0.1 起同时发布到 npm，包名 `@nanoshiki/dsh-anki`。插件管理器可直接安装这个包名，插件市场会按 npm 版本检测更新并给出「更新」按钮；GitHub Release 的 `dsh-anki.tgz` 仍作为预构建备用安装方式，两者数据目录相同。
 
 安装包校验值随 Release 提供；核心逐文件校验值见 [core-sha256.json](<core-sha256.json>)，官方 wheel 下载地址、版本与 SHA-256 见 [core-lock.json](<core-lock.json>)。
 
@@ -95,7 +95,7 @@ A native DSH sidebar and an `anki` AI tool sharing **one independent, per-DSH-pr
 
 **Requirements:** Windows x64 and DSH `^0.2.1-rc.2` (verified on **0.2.1-rc.3**; `@deepseek-ai/dsh*` peers are declared as ranges, not exact pins). CPython 3.13.5, official Anki **26.5 / 26.05** headless core and all its Python runtime dependencies are bundled. No separate Anki/Python/pip installation or first-start dependency download is required. Qt is not bundled.
 
-**Install:** Download `dsh-anki.tgz` from the [latest release](https://github.com/NanoShiki/dsh-anki/releases/latest) — every release carries that fixed asset name, so `releases/latest/download/dsh-anki.tgz` always serves the newest stable build — import it through the authenticated DSH plugin manager, leave `ankiPackages` and `pythonPath` empty, then enable and refresh/restart as instructed. Explicit absolute overrides remain supported, with no silent external fallback. From 2.0.0 the package identity is `@nanoshiki/dsh-anki`; the package is not published to npm.
+**Install:** From 2.0.1 the package is published to npm as `@nanoshiki/dsh-anki`, so the plugin manager installs it by name and the market can offer version updates. The prebuilt `dsh-anki.tgz` on [the latest release](https://github.com/NanoShiki/dsh-anki/releases/latest) remains available as an offline alternative; both share the same data directory. Leave `ankiPackages` and `pythonPath` empty and use the bundled runtime; explicit absolute overrides remain supported, with no silent external fallback.
 
 **Upgrade:** wait for sync, disable the plugin and let its Python worker exit, back up the whole data directory, then replace the installed package with the new release archive, keeping the data directory unchanged and clearing old `ankiPackages` / `pythonPath` overrides to select the bundled runtime. Version 2.0.0 renames the package to `@nanoshiki/dsh-anki`, so an `@local/dsh-anki` install is a one-time new-package install; migrating from the older `@local/dsh-anki-workspace` identity is likewise one-time. Never enable two copies together, keep the data directory, and never point `dataDir` at an Anki desktop profile.
 

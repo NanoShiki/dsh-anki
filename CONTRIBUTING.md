@@ -7,8 +7,8 @@
 1. 从 `main` 新建分支，分支名建议 `feat/…`、`fix/…`、`docs/…`、`chore/…`。
 2. 在分支上完成修改，并跑通[本地检查](#本地检查)。
 3. 推送分支，向 `main` 提交 Pull Request，按模板填写「变更内容 / 验证方式 / 风险与回滚」。
-4. PR 必须通过 GitHub Actions 的 **test** 检查（JavaScript、内置核心后端测试与完整性检查），并在模板里写明实际跑过的检查与结果；维护者合并前会复核。
-5. 不要直接向 `main` push，也不要为了绕过保护临时关闭规则。
+5. PR 必须通过 GitHub Actions 的 **test** 检查（JavaScript、内置核心后端测试与完整性检查），并在模板里写明实际跑过的检查与结果；维护者合并前会复核。
+6. 不要直接向 `main` push，也不要为了绕过保护临时关闭规则。
 
 ## 本地检查
 
@@ -49,10 +49,11 @@ ELECTRON_RUN_AS_NODE=1 DSH_INSTALL_DIR="<DSH>/resources/app.asar/dsh" \
 1. 提升 `package.json` 的版本，并同步测试里的版本断言。
 2. 跑完整检查，构建 `pnpm pack` 产物，执行 `tests/verify_release.py`。
 3. 通过 PR 合并后再创建 Release；Release 资产包含安装包 `.tgz`、对应源码与 Python 依赖源码。
-4. **每个 Release 必须同时附上不带版本号的 `dsh-anki.tgz`**（与版本化安装包内容一致）。市场条目和 README 的稳定链接 `releases/latest/download/dsh-anki.tgz` 都依赖它；只传带版本号的文件，稳定链接会在下次发版后 404。
-5. 要让稳定链接指向该版本，Release 不能是 draft 或 pre-release。
-6. 既然稳定链接已固定，**发新版不需要再向 awesome-dsh-plugin 提交 PR**，只需发布带同名资产的 Release。
-7. 已发布资产的哈希不可变；修复问题请发新版本，不要替换旧资产。
+4. 同一版本还要 `npm publish`（包名 `@nanoshiki/dsh-anki`，`publishConfig.access: public`）；市场靠 npm `latest` 检测更新，漏发 npm 会让已安装用户收不到更新。
+5. **每个 Release 必须同时附上不带版本号的 `dsh-anki.tgz`**（与版本化安装包内容一致）。市场条目和 README 的稳定链接 `releases/latest/download/dsh-anki.tgz` 都依赖它；只传带版本号的文件，稳定链接会在下次发版后 404。
+6. 要让稳定链接指向该版本，Release 不能是 draft 或 pre-release。
+7. 既然稳定链接已固定，**发新版不需要再向 awesome-dsh-plugin 提交 PR**，只需发布带同名资产的 Release。
+8. 已发布资产的哈希不可变；修复问题请发新版本，不要替换旧资产。
 
 ## 提交信息
 
