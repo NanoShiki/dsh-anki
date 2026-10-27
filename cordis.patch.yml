@@ -1,4 +1,4 @@
 - insert:
     - id: local-anki
-      name: '@local/dsh-anki'
+      name: '@nanoshiki/dsh-anki'
       config: {}

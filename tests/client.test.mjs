@@ -47,7 +47,7 @@ function flatten(tree) {
 }
 test('native main/sidebar registration, baseline React only, locale file parity', async () => {
   const f = fixture();
-  assert.equal(f.bundle.id, '@local/dsh-anki');
+  assert.equal(f.bundle.id, '@nanoshiki/dsh-anki');
   assert.deepEqual(f.required, ['react']);
   assert.equal(f.registered[0].meta.key, 'anki-workspace');
   assert.equal(f.registered[1].meta.id, 'anki-workspace');
@@ -62,12 +62,12 @@ test('native main/sidebar registration, baseline React only, locale file parity'
 test('renamed package, native bundle and installer identity remain aligned', async () => {
   const manifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
   const patch = await readFile(new URL('../cordis.patch.yml', import.meta.url), 'utf8');
-  assert.equal(manifest.name, '@local/dsh-anki');
-  assert.equal(manifest.version, '1.4.2');
+  assert.equal(manifest.name, '@nanoshiki/dsh-anki');
+  assert.equal(manifest.version, '2.0.0');
   assert.equal(manifest.repository.url, 'git+https://github.com/NanoShiki/dsh-anki.git');
   assert.equal(fixture().bundle.id, manifest.name);
   assert.match(patch, /^\s+- id: local-anki$/m);
-  assert.match(patch, /^\s+name: '@local\/dsh-anki'$/m);
+  assert.match(patch, /^\s+name: '@nanoshiki\/dsh-anki'$/m);
   assert.doesNotMatch(patch, /dsh-anki-workspace|local-anki-workspace/);
 });
 test('raw Connection RPC endpoint and exact success envelope', async () => {
