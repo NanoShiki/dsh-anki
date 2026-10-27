@@ -49,10 +49,11 @@ ELECTRON_RUN_AS_NODE=1 DSH_INSTALL_DIR="<DSH>/resources/app.asar/dsh" \
 1. 提升 `package.json` 的版本，并同步测试里的版本断言。
 2. 跑完整检查，构建 `pnpm pack` 产物，执行 `tests/verify_release.py`。
 3. 通过 PR 合并后再创建 Release；Release 资产包含安装包 `.tgz`、对应源码与 Python 依赖源码。
-4. **每个 Release 必须同时附上不带版本号的 `dsh-anki.tgz`**（与版本化安装包内容一致）。市场条目和 README 的稳定链接 `releases/latest/download/dsh-anki.tgz` 都依赖它；只传带版本号的文件，稳定链接会在下次发版后 404。
-5. 要让稳定链接指向该版本，Release 不能是 draft 或 pre-release。
-6. 既然稳定链接已固定，**发新版不需要再向 awesome-dsh-plugin 提交 PR**，只需发布带同名资产的 Release。
-7. 已发布资产的哈希不可变；修复问题请发新版本，不要替换旧资产。
+4. 版本号必须在合并进 `main` 的那个 PR 里提升：源码安装（`github:NanoShiki/dsh-anki`）的用户由插件市场比较 `main` 上 `package.json` 的 `version` 来判断更新，只发 Release 而不 bump `main` 不会触发更新提示。
+5. **每个 Release 必须同时附上不带版本号的 `dsh-anki.tgz`**（与版本化安装包内容一致）。市场条目和 README 的稳定链接 `releases/latest/download/dsh-anki.tgz` 都依赖它；只传带版本号的文件，稳定链接会在下次发版后 404。
+6. 要让稳定链接指向该版本，Release 不能是 draft 或 pre-release。
+7. 既然稳定链接已固定，**发新版不需要再向 awesome-dsh-plugin 提交 PR**，只需发布带同名资产的 Release。
+8. 已发布资产的哈希不可变；修复问题请发新版本，不要替换旧资产。
 
 ## 提交信息
 
