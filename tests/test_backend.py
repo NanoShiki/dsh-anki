@@ -254,6 +254,29 @@ class BackendTests(unittest.TestCase):
         finally:
             other.close()
 
+    def test_media_add_pasted_image(self):
+        data = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII=")
+        encoded = base64.b64encode(data).decode("ascii")
+        created = self.client.request("media.add", {"data": encoded})
+        self.assertEqual(created["mime"], "image/png")
+        self.assertRegex(created["filename"], r"^pasted-[0-9a-f]{16}\.png$")
+        fetched = self.client.request("media.get", {"filename": created["filename"]})
+        self.assertEqual(fetched["mime"], "image/png")
+        self.assertEqual(base64.b64decode(fetched["data"]), data)
+        # The filename is content-addressed, so the same paste reuses one file.
+        again = self.client.request("media.add", {"data": encoded})
+        self.assertEqual(again["filename"], created["filename"])
+        files = [path.name for path in (self.root / "data/collection.media").iterdir()]
+        self.assertEqual(files.count(created["filename"]), 1)
+        self.client.request("media.add", {"data": ""}, error="VALIDATION_ERROR")
+        self.client.request("media.add", {"data": "not base64!!"}, error="VALIDATION_ERROR")
+        self.client.request("media.add", {"data": base64.b64encode(b"hello").decode("ascii")},
+                            error="MEDIA_TYPE_NOT_ALLOWED")
+        oversize = b"\x89PNG\r\n\x1a\n" + b"0" * (5 * 1024 * 1024)
+        self.client.request("media.add", {"data": base64.b64encode(oversize).decode("ascii")},
+                            error="MEDIA_TOO_LARGE")
+        self.client.request("media.add", {"data": encoded, "filename": "../escape.png"}, error="VALIDATION_ERROR")
+
     def test_apkg_roundtrip_and_media(self):
         note, model, deck = self.basic()
         media = self.root / "data/collection.media"

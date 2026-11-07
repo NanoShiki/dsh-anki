@@ -62,7 +62,17 @@
   "fields": "Fields",
   "tags": "Tags",
   "tagsPlaceholder": "Separate tags with spaces",
-  "fieldHint": "Fields accept Anki HTML. Imported card scripts are never executed.",
+  "fieldHint": "Select text to format it, paste a screenshot, or use </> to edit HTML.",
+  "bold": "Bold (Ctrl+B)",
+  "italic": "Italic (Ctrl+I)",
+  "underline": "Underline (Ctrl+U)",
+  "superscript": "Superscript",
+  "subscript": "Subscript",
+  "insertUnorderedList": "Bulleted list",
+  "insertOrderedList": "Numbered list",
+  "removeFormat": "Clear formatting",
+  "htmlMode": "HTML source",
+  "sourceRequired": "This field contains custom HTML. Edit it in source mode to preserve its markup.",
   "clozeHint": "Cloze example: The capital of France is {{c1::Paris}}.",
   "save": "Save changes",
   "reloadNote": "Reload note",
@@ -185,5 +195,8 @@
   "savedState": "Saved",
   "unsaved": "Unsaved draft",
   "reloadRequired": "Reload required",
-  "collectionReady": "Open"
+  "collectionReady": "Open",
+  "imageInserted": "Image saved to the collection and inserted.",
+  "imageFailed": "Could not save the pasted image.",
+  "imageTooLarge": "Image exceeds 5 MB."
 }

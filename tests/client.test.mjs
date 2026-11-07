@@ -39,6 +39,7 @@ function fixture(response = { ok: true, value: { noteCount: 0 } }) {
   definition.apply(ctx);
   const main = registered.find((entry) => entry.meta.name === 'main');
   return { bundle, definition, dictionaries, registered, required, calls, props: main.meta.inject(),
+    nested(node, values) { index = 0; currentValues = values; return node.type(node.props); },
     render(values) { index = 0; currentValues = values; return main.component(main.meta.inject()); } };
 }
 function flatten(tree) {
@@ -63,7 +64,7 @@ test('renamed package, native bundle and installer identity remain aligned', asy
   const manifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
   const patch = await readFile(new URL('../cordis.patch.yml', import.meta.url), 'utf8');
   assert.equal(manifest.name, '@nanoshiki/dsh-anki');
-  assert.equal(manifest.version, '2.0.1');
+  assert.equal(manifest.version, '2.1.0');
   assert.equal(manifest.repository.url, 'git+https://github.com/NanoShiki/dsh-anki.git');
   assert.equal(fixture().bundle.id, manifest.name);
   assert.match(patch, /^\s+- id: local-anki$/m);
@@ -108,6 +109,68 @@ test('all five native tabs render and review requires an explicit deck', () => {
       assert.equal(start.props.disabled, true);
     }
   }
+});
+
+test('pasted screenshots upload through media.add and insert img markup', async () => {
+  const f = fixture({ ok: true, value: { filename: 'pasted-abc.png' } });
+  const values = [];
+  values[0] = { noteCount: 0, cardCount: 0, version: '26.05', undo: { available: false } };
+  values[1] = [{ id: 1, name: 'Default', total: 0 }];
+  values[2] = [{ id: 1, name: 'Basic', type: 0, fields: ['Front', 'Back'] }];
+  values[4] = 'add';
+  values[6] = false;
+  values[20] = 1;
+  values[21] = 1;
+  const tree = flatten(f.render(values));
+  const fields = tree.find((node) => node.type.name === 'Fields');
+  const [row] = fields.type(fields.props);
+  row.props.perform = (operation) => operation();
+  const rich = flatten(f.nested(row, [false]));
+  assert.ok(rich.some((node) => node.props.contentEditable));
+  assert.ok(rich.some((node) => node.props.title === 'Bold (Ctrl+B)'));
+  const textarea = flatten(f.nested(row, [true])).find((node) => node.type === 'textarea');
+  let prevented = false;
+  const target = { value: '', selectionStart: 0, selectionEnd: 0, isConnected: true,
+    ownerDocument: { getSelection: () => ({}), createElement: () => ({
+      setAttribute(key, value) { this.outerHTML = `<img ${key}="${value}">`; }
+    }) }, setRangeText(text) { this.value = text; } };
+  textarea.props.onPaste({
+    clipboardData: { items: [{ kind: 'file', type: 'image/png', getAsFile: () => ({
+      size: 8,
+      arrayBuffer: async () => new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]).buffer,
+    }) }] },
+    currentTarget: target,
+    preventDefault: () => { prevented = true; },
+  });
+  await new Promise((resolve) => setTimeout(resolve, 10));
+  assert.equal(prevented, true, 'the browser default paste is suppressed for images');
+  assert.ok(f.calls.some(([, action, payload]) => action === 'ankiWorkspace/execute' && payload.args.action === 'media.add'),
+    'the image is uploaded through media.add');
+  assert.equal(target.value, '<img src="pasted-abc.png">', 'the field receives the inserted image markup');
+});
+
+test('field media preview lists local image references and skips external sources', () => {
+  const f = fixture();
+  const values = [];
+  values[0] = { noteCount: 0, cardCount: 0, version: '26.05', undo: { available: false } };
+  values[2] = [{ id: 1, name: 'Basic', type: 0, fields: ['Front'] }];
+  values[4] = 'add';
+  values[6] = false;
+  values[20] = 1;
+  const rows = (function () {
+    const fields = flatten(f.render(values)).find((node) => typeof node.type === 'function' && node.type.name === 'Fields');
+    assert.ok(fields, 'the add tab renders the Fields component');
+    return fields.type(fields.props);
+  })();
+  const previewNode = rows.flatMap((row) => f.nested(row, [true]).children)
+    .find((child) => child && typeof child.type === 'function' && child.type.name === 'MediaPreview');
+  assert.ok(previewNode, 'each field renders a MediaPreview');
+  const rendered = previewNode.type({
+    html: '<p>hi</p><img src="pasted-abc.png"><img src="https://evil.example/x.png"><img src="../escape.png">',
+    api: previewNode.props.api,
+  });
+  const chips = flatten(rendered).filter((node) => node && node.props && node.props['data-media']).map((node) => node.props['data-media']);
+  assert.deepEqual(chips, ['pasted-abc.png'], 'only local media filenames are previewed');
 });
 
 function layoutFixture() {

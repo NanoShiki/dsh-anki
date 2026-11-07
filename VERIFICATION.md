@@ -1,3 +1,9 @@
+# Verification record — 2.1.0 / 2026-11-08
+
+The Windows client suite passed 84 tests and the bundled Anki backend passed 40. Media tests cover upload, lookup, deduplication and invalid inputs. In Edge with a simulated collection, the add form preserved bold text and pasted rich HTML, uploaded a clipboard image and submitted its filename. Reopening the note in Browse displayed the image inline. Editing the source and saving preserved custom markup.
+
+The tested archive passed the runtime and core hash checks and a relocated-package smoke test with an isolated collection. The owner confirmed the rich editor test package before release.
+
 # Verification record — 2.0.0 / 2026-10-27
 
 ## 2.0.0 package identity rename
