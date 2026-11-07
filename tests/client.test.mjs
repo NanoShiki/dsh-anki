@@ -145,6 +145,30 @@ test('pasted screenshots upload through media.add and insert img markup', async 
   assert.equal(target.value, '<img src="pasted-abc.png">', 'the field receives the inserted image markup');
 });
 
+test('field media preview lists local image references and skips external sources', () => {
+  const f = fixture();
+  const values = [];
+  values[0] = { noteCount: 0, cardCount: 0, version: '26.05', undo: { available: false } };
+  values[2] = [{ id: 1, name: 'Basic', type: 0, fields: ['Front'] }];
+  values[4] = 'add';
+  values[6] = false;
+  values[20] = 1;
+  const rows = (function () {
+    const fields = flatten(f.render(values)).find((node) => typeof node.type === 'function' && node.type.name === 'Fields');
+    assert.ok(fields, 'the add tab renders the Fields component');
+    return fields.type(fields.props);
+  })();
+  const previewNode = rows.flatMap((row) => row.children)
+    .find((child) => child && typeof child.type === 'function' && child.type.name === 'MediaPreview');
+  assert.ok(previewNode, 'each field renders a MediaPreview');
+  const rendered = previewNode.type({
+    html: '<p>hi</p><img src="pasted-abc.png"><img src="https://evil.example/x.png"><img src="../escape.png">',
+    api: previewNode.props.api,
+  });
+  const chips = flatten(rendered).filter((node) => node && node.props && node.props['data-media']).map((node) => node.props['data-media']);
+  assert.deepEqual(chips, ['pasted-abc.png'], 'only local media filenames are previewed');
+});
+
 function layoutFixture() {
   const f = fixture(), values = [];
   values[0] = { noteCount: 462, cardCount: 462, undo: { available: false } };

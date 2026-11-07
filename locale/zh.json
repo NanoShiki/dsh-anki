@@ -62,7 +62,7 @@
   "fields": "字段",
   "tags": "标签",
   "tagsPlaceholder": "使用空格分隔标签",
-  "fieldHint": "字段支持 Anki HTML，可直接粘贴截图存入牌库并插入图片。",
+  "fieldHint": "字段支持 Anki HTML，可直接粘贴截图存入牌库、插入图片，并在字段下方实时预览。",
   "clozeHint": "挖空示例：法国的首都是 {{c1::巴黎}}。",
   "save": "保存更改",
   "reloadNote": "重新加载笔记",

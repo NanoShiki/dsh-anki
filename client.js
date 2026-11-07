@@ -27,7 +27,7 @@ window.__ModuleLoader__.load({
       searchHint: 'Uses Anki search syntax. The selected deck is included in your search.', results: 'Results',
       noNotes: 'No notes found. Try another search or add a note.', selectNote: 'Select a note to edit its fields, tags, or suspension state.',
       previous: 'Previous', next: 'Next', editNote: 'Edit note', noteId: 'Note ID', model: 'Note type', deck: 'Deck', fields: 'Fields',
-      tags: 'Tags', tagsPlaceholder: 'Separate tags with spaces', fieldHint: 'Fields accept Anki HTML. Paste a screenshot to store it in the collection media and insert it as an image.',
+      tags: 'Tags', tagsPlaceholder: 'Separate tags with spaces', fieldHint: 'Fields accept Anki HTML. Paste a screenshot to store it in the collection media, insert it as an image, and preview it below the field.',
       imageInserted: 'Image saved to the collection and inserted.', imageFailed: 'Could not save the pasted image.', imageTooLarge: 'Image exceeds 5 MB.',
       clozeHint: 'Cloze example: The capital of France is {{c1::Paris}}.', save: 'Save changes', reloadNote: 'Reload note',
       saved: 'Note saved.', added: 'Note added. Ready for the next one.', addHint: 'Choose a deck and note type, then fill in the fields.',
@@ -93,7 +93,7 @@ window.__ModuleLoader__.load({
       queryPlaceholder: '关键词、tag:… 或 is:suspended', search: '搜索', searchHint: '支持 Anki 搜索语法，搜索范围包含当前选中的牌组。',
       results: '搜索结果', noNotes: '没有找到笔记，请尝试其他搜索或添加笔记。', selectNote: '选择一条笔记，编辑字段、标签或暂停状态。',
       previous: '上一页', next: '下一页', editNote: '编辑笔记', noteId: '笔记 ID', model: '笔记类型', deck: '牌组', fields: '字段',
-      tags: '标签', tagsPlaceholder: '使用空格分隔标签', fieldHint: '字段支持 Anki HTML，可直接粘贴截图存入牌库并插入图片。',
+      tags: '标签', tagsPlaceholder: '使用空格分隔标签', fieldHint: '字段支持 Anki HTML，可直接粘贴截图存入牌库、插入图片，并在字段下方实时预览。',
       imageInserted: '图片已存入牌库并插入。', imageFailed: '粘贴的图片保存失败。', imageTooLarge: '图片超过 5 MB。',
       clozeHint: '挖空示例：法国的首都是 {{c1::巴黎}}。', save: '保存更改', reloadNote: '重新加载笔记', saved: '笔记已保存。',
       added: '笔记已添加，可以继续添加下一条。', addHint: '选择牌组和笔记类型，然后填写字段。', chooseDeck: '请选择牌组',
@@ -159,7 +159,7 @@ window.__ModuleLoader__.load({
 .dsh-anki-pagination{display:flex;flex:none;justify-content:center;align-items:center;gap:16px;padding:9px 10px;border-top:1px solid var(--anki-border);background:#fff}.dsh-anki-pagination button{min-height:32px;padding:5px 8px;font-size:12px}.dsh-anki-pagination span{font-variant-numeric:tabular-nums}
 .dsh-anki-editor{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:auto;overscroll-behavior:contain;border:1px solid var(--anki-border);border-radius:11px;background:#fff;padding:16px}.dsh-anki-toolbar,.dsh-anki-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dsh-anki-toolbar{justify-content:space-between;margin-bottom:14px;flex:none}.dsh-anki-editor-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex:none;margin-bottom:15px}.dsh-anki-editor-status{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--anki-muted);white-space:nowrap}.dsh-anki-editor-status[data-state=saved]{color:#328664}.dsh-anki-editor-status[data-state=draft]{color:#986c18}.dsh-anki-editor-status[data-state=stale]{color:#b54141}.dsh-anki-editor-reload{font-size:11px!important;min-height:28px!important;padding:3px 7px!important}
 .dsh-anki-note-context{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 14px;padding:10px;border:1px solid #edf0f3;border-radius:8px;background:#fafbfc;flex:none}.dsh-anki-note-context div{min-width:0}.dsh-anki-note-context dt{color:var(--anki-faint);font-size:11px}.dsh-anki-note-context dd{margin:2px 0 0;font-size:12px;overflow-wrap:anywhere}.dsh-anki-note-context small{color:var(--anki-faint)}
-.dsh-anki-form{display:flex;flex-direction:column;gap:16px;min-width:0}.dsh-anki-edit-form{display:flex;flex-direction:column;flex:1;min-height:0;gap:0}.dsh-anki-editor-fields{display:flex;flex-direction:column;flex:1;min-height:0;gap:18px;overflow:auto;overscroll-behavior:contain;padding:0 2px 12px}.dsh-anki-editor-fields>.dsh-anki-caption{margin:0;font-size:11px}.dsh-anki-field{display:flex;flex-direction:column;gap:7px;min-width:0;flex:none}.dsh-anki-field>span{font-size:12px;font-weight:600}.dsh-anki-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.dsh-anki-editor-tags{display:flex;flex-wrap:wrap;gap:5px}.dsh-anki-editor-tags span{font-size:11px;padding:3px 8px;background:#f1f3f5;border-radius:6px;overflow-wrap:anywhere;max-width:100%}.dsh-anki-editor-footer{display:flex;flex:none;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--anki-border)}.dsh-anki-suspension-info{flex-basis:100%;font-size:11px;margin:0!important}.dsh-anki-editor-footer .dsh-anki-primary{margin-left:auto}
+.dsh-anki-form{display:flex;flex-direction:column;gap:16px;min-width:0}.dsh-anki-edit-form{display:flex;flex-direction:column;flex:1;min-height:0;gap:0}.dsh-anki-editor-fields{display:flex;flex-direction:column;flex:1;min-height:0;gap:18px;overflow:auto;overscroll-behavior:contain;padding:0 2px 12px}.dsh-anki-editor-fields>.dsh-anki-caption{margin:0;font-size:11px}.dsh-anki-field{display:flex;flex-direction:column;gap:7px;min-width:0;flex:none}.dsh-anki-field>span{font-size:12px;font-weight:600}.dsh-anki-media-preview{display:flex;flex-wrap:wrap;gap:8px}.dsh-anki-media-thumb{max-height:120px;max-width:100%;border:1px solid var(--anki-border);border-radius:8px;object-fit:contain;background:#fff}.dsh-anki-media-chip{font-size:11px;color:var(--anki-faint);border:1px dashed var(--anki-border);border-radius:6px;padding:2px 7px}.dsh-anki-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.dsh-anki-editor-tags{display:flex;flex-wrap:wrap;gap:5px}.dsh-anki-editor-tags span{font-size:11px;padding:3px 8px;background:#f1f3f5;border-radius:6px;overflow-wrap:anywhere;max-width:100%}.dsh-anki-editor-footer{display:flex;flex:none;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--anki-border)}.dsh-anki-suspension-info{flex-basis:100%;font-size:11px;margin:0!important}.dsh-anki-editor-footer .dsh-anki-primary{margin-left:auto}
 .dsh-anki-empty{text-align:center;padding:32px 16px;border:1px dashed var(--anki-border);border-radius:10px;color:var(--anki-muted);min-width:0}.dsh-anki-empty h2{color:var(--anki-ink);margin-top:12px}.dsh-anki-empty p{max-width:390px;margin:7px auto 18px}.dsh-anki-empty svg{opacity:.6}.dsh-anki-editor>.dsh-anki-empty{margin:auto 0}
 .dsh-anki-notice{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid #d9eaea;border-radius:9px;margin:0 0 10px;background:#edf7f7;overflow-wrap:anywhere}.dsh-anki-notice[data-error=true]{color:#b54141;border-color:#ecd6d6;background:#fff7f7}.dsh-anki-notice button{font-size:11px;min-height:26px;padding:2px 7px;flex:none}.dsh-anki-main>.dsh-anki-delete{flex:0 1 auto;min-height:0;max-height:55%;overflow:auto;margin-bottom:10px!important;background:#fff}
 .dsh-anki-review-head{margin-bottom:18px}.dsh-anki-review-meta{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}.dsh-anki-frame-wrap{border:1px solid var(--anki-border);border-radius:10px;overflow:hidden}.dsh-anki-frame{display:block;border:0;width:100%;min-height:280px;height:clamp(280px,46vh,650px);background:#fff}.dsh-anki-review-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:18px}.dsh-anki-rating{min-width:80px;display:flex;flex-direction:column;align-items:center;gap:2px}.dsh-anki-rating strong{font-size:13px;font-weight:600}.dsh-anki-rating span{font-size:11px;color:var(--anki-muted)}.dsh-anki-review-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:18px}
@@ -314,6 +314,42 @@ window.__ModuleLoader__.load({
       }
       return out;
     }
+    function mediaFilenames(html) {
+      const names = [];
+      const pattern = /<img\b[^>]*\bsrc\s*=\s*(?:"([^"]+)"|'([^']+)')/gi;
+      let match;
+      while ((match = pattern.exec(html || '')) !== null && names.length < 12) {
+        const src = (match[1] || match[2] || '').trim();
+        if (!src || src.length > 200 || /^[a-z][a-z0-9+.-]*:/i.test(src) || /[\\/]/.test(src)) continue;
+        if (!names.includes(src)) names.push(src);
+      }
+      return names;
+    }
+    function MediaPreview({ html, api }) {
+      const names = mediaFilenames(html);
+      const cache = React.useRef({});
+      const [, bump] = React.useState(0);
+      React.useEffect(() => {
+        let cancelled = false;
+        for (const name of names) {
+          if (Object.hasOwn(cache.current, name)) continue;
+          cache.current[name] = null;
+          api('media.get', { filename: name }).then((file) => {
+            if (cancelled) return;
+            cache.current[name] = file && file.mime && file.data ? 'data:' + file.mime + ';base64,' + file.data : '';
+            bump((value) => value + 1);
+          }, () => { if (!cancelled) { cache.current[name] = ''; bump((value) => value + 1); } });
+        }
+        return () => { cancelled = true; };
+      }, [names.join('\n')]);
+      if (!names.length) return null;
+      return h('div', { className: 'dsh-anki-media-preview', 'aria-label': 'media preview' }, names.map((name) => {
+        const source = cache.current[name];
+        if (source === undefined || source === null) return h('span', { key: name, className: 'dsh-anki-media-chip', 'data-media': name }, name);
+        if (source === '') return null;
+        return h('img', { key: name, className: 'dsh-anki-media-thumb', src: source, alt: name, 'data-media': name, loading: 'lazy' });
+      }));
+    }
     function Fields({ names, values, setValues, disabled, api, notify }) {
       function pasteImage(name, event) {
         const items = event.clipboardData && event.clipboardData.items;
@@ -345,7 +381,7 @@ window.__ModuleLoader__.load({
         value: values[name] || '', disabled, spellCheck: false,
         onPaste: (event) => pasteImage(name, event),
         onChange: (event) => setValues((before) => ({ ...before, [name]: event.target.value }))
-      })));
+      }), h(MediaPreview, { key: name + '-preview', html: values[name] || '', api })));
     }
     function syncErrorText(t, code, login = false) {
       const known = {

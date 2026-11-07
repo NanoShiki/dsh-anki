@@ -62,7 +62,7 @@
   "fields": "Fields",
   "tags": "Tags",
   "tagsPlaceholder": "Separate tags with spaces",
-  "fieldHint": "Fields accept Anki HTML. Paste a screenshot to store it in the collection media and insert it as an image.",
+  "fieldHint": "Fields accept Anki HTML. Paste a screenshot to store it in the collection media, insert it as an image, and preview it below the field.",
   "clozeHint": "Cloze example: The capital of France is {{c1::Paris}}.",
   "save": "Save changes",
   "reloadNote": "Reload note",

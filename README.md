@@ -16,7 +16,7 @@
 
 插件管理器里的显示名称是 **Anki**（来自包内 `locale/*.json` 的 `meta.title`）；技术包名是 `@nanoshiki/dsh-anki`（2.0.0 起；1.4.x 及更早为 `@local/dsh-anki`），只在详情页用于排查安装位置。
 
-**粘贴截图：** 笔记字段支持直接粘贴截图（PNG/JPEG/GIF/WebP，≤5 MB）。图片会按内容哈希存入本插件牌库的 `collection.media`，并在光标处插入 `<img src="文件名">`；同样的图片重复粘贴会复用同一个文件。
+**粘贴截图：** 笔记字段支持直接粘贴截图（PNG/JPEG/GIF/WebP，≤5 MB）。图片会按内容哈希存入本插件牌库的 `collection.media`，并在光标处插入 `<img src="文件名">`，字段下方会实时预览该图片；同样的图片重复粘贴会复用同一个文件。
 
 `pythonPath` / `ankiPackages` 仅保留为高级用户的绝对路径覆盖项，不再使用作者机器上的路径，也不会静默回退到外部安装。完整包损坏或缺文件时，请重新安装完整 `.tgz`，不是另装 Python/Anki。
 
