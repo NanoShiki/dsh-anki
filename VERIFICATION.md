@@ -1,10 +1,8 @@
-# Verification record — 2.1.0 / 2026-11-07
+# Verification record — 2.1.0 / 2026-11-08
 
-## 2.1.0 paste a screenshot into a note
+The Windows client suite passed 84 tests and the bundled Anki backend passed 40. Media tests cover upload, lookup, deduplication and invalid inputs. In Edge with a simulated collection, the add form preserved bold text and pasted rich HTML, uploaded a clipboard image and submitted its filename. Reopening the note in Browse displayed the image inline. Editing the source and saving preserved custom markup.
 
-Note fields accept pasted raster images (PNG/JPEG/GIF/WebP up to 5 MB). The client sniffs the clipboard item, base64-encodes the bytes, and calls the new `media.add` action; the worker verifies the magic bytes, hashes the content into `pasted-<hash>.<ext>`, stores it through Anki's own `MediaManager.write_data` (so the media DB and AnkiWeb sync see it), and returns the stored filename. The client then inserts `<img src="filename">` at the caret and renders a live thumbnail strip under the field: local media references are resolved through `media.get` into data URLs, while external URLs and paths are ignored. Identical pastes reuse one media file; invalid base64, non-image bytes and oversize payloads are rejected before touching disk, and no caller-supplied path reaches the filesystem.
-
-Covered by backend tests (`media.add` round trip, dedupe, rejection paths) and a client test that renders the Add tab, delivers a fake clipboard image, and asserts `media.add` plus the inserted `<img>` markup. `media.add` is a mutation, so AI use still requires `danger-full-access`; the sidebar editor is owner-only.
+The tested archive passed the runtime and core hash checks and a relocated-package smoke test with an isolated collection. The owner confirmed the rich editor test package before release.
 
 # Verification record — 2.0.0 / 2026-10-27
 

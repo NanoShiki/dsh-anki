@@ -205,7 +205,7 @@ function browserMeasurements() {
       check('pager visible after list-only scroll', fullyVisible(pager), rect(pager));
       check('list-only scroll never moves whole page', outerState().every((value, index) => Math.abs(value.scrollTop - previousOuter[index].scrollTop) <= 2));
       const editor = root.querySelector('.dsh-anki-editor');
-      check('full editor has six actual field textareas', editor.querySelectorAll('textarea').length === 6);
+      check('full editor has six editable fields', editor.querySelectorAll('textarea, .dsh-anki-rich').length === 6);
       for (const label of editor.querySelectorAll('.dsh-anki-field > span')) {
         const reached = reachable(label);
         check(`editor field ${label.textContent} reachable internally`, reached.visible && !reached.outerScrolled, reached);

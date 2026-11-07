@@ -16,7 +16,8 @@
 
 插件管理器里的显示名称是 **Anki**（来自包内 `locale/*.json` 的 `meta.title`）；技术包名是 `@nanoshiki/dsh-anki`（2.0.0 起；1.4.x 及更早为 `@local/dsh-anki`），只在详情页用于排查安装位置。
 
-**粘贴截图：** 笔记字段支持直接粘贴截图（PNG/JPEG/GIF/WebP，≤5 MB）。图片会按内容哈希存入本插件牌库的 `collection.media`，并在光标处插入 `<img src="文件名">`，字段下方会实时预览该图片；同样的图片重复粘贴会复用同一个文件。
+**2.1.0 富文本编辑**：新增和浏览页都支持选中文字后加粗、斜体、下划线、上下标和列表，也可点 `</>` 编辑 HTML 源码。粘贴截图（PNG/JPEG/GIF/WebP，最大 5 MiB）会在光标处显示图片。字段保存媒体文件名，相同图片复用同一个文件。含有可视化编辑器无法完整保留的自定义 HTML 的字段会以源码模式打开。
+
 
 `pythonPath` / `ankiPackages` 仅保留为高级用户的绝对路径覆盖项，不再使用作者机器上的路径，也不会静默回退到外部安装。完整包损坏或缺文件时，请重新安装完整 `.tgz`，不是另装 Python/Anki。
 
@@ -102,6 +103,8 @@ A native DSH sidebar and an `anki` AI tool sharing **one independent, per-DSH-pr
 **Upgrade:** wait for sync, disable the plugin and let its Python worker exit, back up the whole data directory, then replace the installed package with the new release archive, keeping the data directory unchanged and clearing old `ankiPackages` / `pythonPath` overrides to select the bundled runtime. Version 2.0.0 renames the package to `@nanoshiki/dsh-anki`, so an `@local/dsh-anki` install is a one-time new-package install; migrating from the older `@local/dsh-anki-workspace` identity is likewise one-time. Never enable two copies together, keep the data directory, and never point `dataDir` at an Anki desktop profile.
 
 **Sync:** credentials are entered only on the owner-only Sync page and stored with Windows current-user DPAPI, bound to the workspace path, with no plaintext fallback. Manual sync runs native collection sync and then native media sync. Automatic sync is on by default and is scheduled by the host. **Every full upload or download waits for explicit confirmation** with a mandatory overwrite warning; AI and automatic sync can never confirm a direction. Both full directions snapshot the local collection, media and media database first — **a local backup cannot restore overwritten cloud data**. Failed or cancelled sync can leave partially completed changes; cancellation is not rollback.
+
+**Note editing (2.1.0)** supports rich text, lists, inline pasted images and HTML source editing in both Add and Browse. Custom markup opens in source mode to preserve it.
 
 **Operations:** deck create/rename, native note types and search, note/tag editing, card suspension, APKG import and export, and review of a selected deck (including descendants) with Again/Hard/Good/Easy. Deck deletion is owner-only, previews the affected subdecks, cards and orphaned notes, requires the exact full deck name, protects the ID-1 default deck, and cannot be undone by review undo. Media is basename-only and capped at 5 MiB per response; reviewer HTML is script-disabled and sandboxed, and add-ons/custom reviewer JavaScript/MathJax are unsupported.
 

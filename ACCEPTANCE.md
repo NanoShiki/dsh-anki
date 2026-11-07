@@ -24,3 +24,7 @@ Automated checks use isolated temporary collections and localhost test services.
 3. Delete only when intended: export a backup first if needed, then type the exact full original deck name and confirm. This cannot be undone using review Undo and may synchronize to AnkiWeb. For an optional demonstration, use a new empty throwaway deck rather than an existing study deck.
 
 Follow [README](<README.md>) for backup/upgrade precautions and supported limitations. Failed or cancelled synchronization may partially change local or cloud state; a local backup cannot restore overwritten cloud data.
+
+## Rich text fields (2.1.0)
+
+In Add, select text, press Ctrl+B and paste a screenshot at the caret. Save and reopen the note in Browse. Confirm that bold text and the inline image survive, then use the HTML source button to check the image filename. Save an edit and verify the result during review.

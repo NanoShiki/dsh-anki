@@ -39,6 +39,7 @@ function fixture(response = { ok: true, value: { noteCount: 0 } }) {
   definition.apply(ctx);
   const main = registered.find((entry) => entry.meta.name === 'main');
   return { bundle, definition, dictionaries, registered, required, calls, props: main.meta.inject(),
+    nested(node, values) { index = 0; currentValues = values; return node.type(node.props); },
     render(values) { index = 0; currentValues = values; return main.component(main.meta.inject()); } };
 }
 function flatten(tree) {
@@ -121,15 +122,18 @@ test('pasted screenshots upload through media.add and insert img markup', async 
   values[20] = 1;
   values[21] = 1;
   const tree = flatten(f.render(values));
-  // The fake renderer does not invoke nested function components, so render the
-  // Fields component the way React would before locating its textarea.
-  const fields = tree.find((node) => typeof node.type === 'function' && node.type.name === 'Fields');
-  assert.ok(fields, 'the add tab renders the Fields component');
-  const rows = fields.type(fields.props);
-  const textarea = rows.find((row) => row.children.some((child) => child && child.type === 'textarea')).children.find((child) => child && child.type === 'textarea');
-  assert.ok(textarea, 'the add tab renders a note field');
+  const fields = tree.find((node) => node.type.name === 'Fields');
+  const [row] = fields.type(fields.props);
+  row.props.perform = (operation) => operation();
+  const rich = flatten(f.nested(row, [false]));
+  assert.ok(rich.some((node) => node.props.contentEditable));
+  assert.ok(rich.some((node) => node.props.title === 'Bold (Ctrl+B)'));
+  const textarea = flatten(f.nested(row, [true])).find((node) => node.type === 'textarea');
   let prevented = false;
-  const target = { value: '', selectionStart: 0, selectionEnd: 0 };
+  const target = { value: '', selectionStart: 0, selectionEnd: 0, isConnected: true,
+    ownerDocument: { getSelection: () => ({}), createElement: () => ({
+      setAttribute(key, value) { this.outerHTML = `<img ${key}="${value}">`; }
+    }) }, setRangeText(text) { this.value = text; } };
   textarea.props.onPaste({
     clipboardData: { items: [{ kind: 'file', type: 'image/png', getAsFile: () => ({
       size: 8,
@@ -158,7 +162,7 @@ test('field media preview lists local image references and skips external source
     assert.ok(fields, 'the add tab renders the Fields component');
     return fields.type(fields.props);
   })();
-  const previewNode = rows.flatMap((row) => row.children)
+  const previewNode = rows.flatMap((row) => f.nested(row, [true]).children)
     .find((child) => child && typeof child.type === 'function' && child.type.name === 'MediaPreview');
   assert.ok(previewNode, 'each field renders a MediaPreview');
   const rendered = previewNode.type({
