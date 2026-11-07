@@ -62,7 +62,7 @@
   "fields": "Fields",
   "tags": "Tags",
   "tagsPlaceholder": "Separate tags with spaces",
-  "fieldHint": "Fields accept Anki HTML. Imported card scripts are never executed.",
+  "fieldHint": "Fields accept Anki HTML. Paste a screenshot to store it in the collection media and insert it as an image.",
   "clozeHint": "Cloze example: The capital of France is {{c1::Paris}}.",
   "save": "Save changes",
   "reloadNote": "Reload note",
@@ -185,5 +185,8 @@
   "savedState": "Saved",
   "unsaved": "Unsaved draft",
   "reloadRequired": "Reload required",
-  "collectionReady": "Open"
+  "collectionReady": "Open",
+  "imageInserted": "Image saved to the collection and inserted.",
+  "imageFailed": "Could not save the pasted image.",
+  "imageTooLarge": "Image exceeds 5 MB."
 }

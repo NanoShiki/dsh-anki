@@ -27,7 +27,8 @@ window.__ModuleLoader__.load({
       searchHint: 'Uses Anki search syntax. The selected deck is included in your search.', results: 'Results',
       noNotes: 'No notes found. Try another search or add a note.', selectNote: 'Select a note to edit its fields, tags, or suspension state.',
       previous: 'Previous', next: 'Next', editNote: 'Edit note', noteId: 'Note ID', model: 'Note type', deck: 'Deck', fields: 'Fields',
-      tags: 'Tags', tagsPlaceholder: 'Separate tags with spaces', fieldHint: 'Fields accept Anki HTML. Imported card scripts are never executed.',
+      tags: 'Tags', tagsPlaceholder: 'Separate tags with spaces', fieldHint: 'Fields accept Anki HTML. Paste a screenshot to store it in the collection media and insert it as an image.',
+      imageInserted: 'Image saved to the collection and inserted.', imageFailed: 'Could not save the pasted image.', imageTooLarge: 'Image exceeds 5 MB.',
       clozeHint: 'Cloze example: The capital of France is {{c1::Paris}}.', save: 'Save changes', reloadNote: 'Reload note',
       saved: 'Note saved.', added: 'Note added. Ready for the next one.', addHint: 'Choose a deck and note type, then fill in the fields.',
       chooseDeck: 'Choose a deck', noModels: 'No note types are available. Refresh the collection or import a deck.',
@@ -92,7 +93,8 @@ window.__ModuleLoader__.load({
       queryPlaceholder: '关键词、tag:… 或 is:suspended', search: '搜索', searchHint: '支持 Anki 搜索语法，搜索范围包含当前选中的牌组。',
       results: '搜索结果', noNotes: '没有找到笔记，请尝试其他搜索或添加笔记。', selectNote: '选择一条笔记，编辑字段、标签或暂停状态。',
       previous: '上一页', next: '下一页', editNote: '编辑笔记', noteId: '笔记 ID', model: '笔记类型', deck: '牌组', fields: '字段',
-      tags: '标签', tagsPlaceholder: '使用空格分隔标签', fieldHint: '字段支持 Anki HTML，导入的卡片脚本不会执行。',
+      tags: '标签', tagsPlaceholder: '使用空格分隔标签', fieldHint: '字段支持 Anki HTML，可直接粘贴截图存入牌库并插入图片。',
+      imageInserted: '图片已存入牌库并插入。', imageFailed: '粘贴的图片保存失败。', imageTooLarge: '图片超过 5 MB。',
       clozeHint: '挖空示例：法国的首都是 {{c1::巴黎}}。', save: '保存更改', reloadNote: '重新加载笔记', saved: '笔记已保存。',
       added: '笔记已添加，可以继续添加下一条。', addHint: '选择牌组和笔记类型，然后填写字段。', chooseDeck: '请选择牌组',
       noModels: '暂无笔记类型，请刷新收藏或导入牌组。', suspended: '已暂停卡片', suspend: '暂停卡片', unsuspend: '恢复卡片',
@@ -301,9 +303,47 @@ window.__ModuleLoader__.load({
     function Empty({ title, description, children, check }) {
       return h('div', { className: 'dsh-anki-empty' }, h(Icon, { size: 34, check }), h('h2', null, title), h('p', null, description), children);
     }
-    function Fields({ names, values, setValues, disabled }) {
+    function toBase64(bytes) {
+      const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+      let out = '';
+      for (let index = 0; index < bytes.length; index += 3) {
+        const a = bytes[index], b = index + 1 < bytes.length ? bytes[index + 1] : 0, c = index + 2 < bytes.length ? bytes[index + 2] : 0;
+        out += alphabet[a >> 2] + alphabet[((a & 3) << 4) | (b >> 4)]
+          + (index + 1 < bytes.length ? alphabet[((b & 15) << 2) | (c >> 6)] : '=')
+          + (index + 2 < bytes.length ? alphabet[c & 63] : '=');
+      }
+      return out;
+    }
+    function Fields({ names, values, setValues, disabled, api, notify }) {
+      function pasteImage(name, event) {
+        const items = event.clipboardData && event.clipboardData.items;
+        if (!items) return;
+        const image = Array.from(items).find((item) => item.kind === 'file' && /^image\//.test(item.type));
+        if (!image) return;
+        const file = image.getAsFile && image.getAsFile();
+        if (!file) return;
+        event.preventDefault();
+        const target = event.currentTarget;
+        const before = values[name] || '';
+        const start = target && typeof target.selectionStart === 'number' ? target.selectionStart : before.length;
+        const end = target && typeof target.selectionEnd === 'number' ? target.selectionEnd : start;
+        if (file.size > 5 * 1024 * 1024) { notify('imageTooLarge'); return; }
+        file.arrayBuffer().then(async (buffer) => {
+          try {
+            const result = await api('media.add', { data: toBase64(new Uint8Array(buffer)) });
+            const html = '<img src="' + result.filename + '">';
+            const next = before.slice(0, start) + html + before.slice(end);
+            setValues((current) => ({ ...current, [name]: next }));
+            if (target) { try { target.value = next; } catch {} }
+            notify('imageInserted');
+          } catch {
+            notify('imageFailed');
+          }
+        }, () => notify('imageFailed'));
+      }
       return names.map((name) => h(Field, { key: name, label: name }, h('textarea', {
         value: values[name] || '', disabled, spellCheck: false,
+        onPaste: (event) => pasteImage(name, event),
         onChange: (event) => setValues((before) => ({ ...before, [name]: event.target.value }))
       })));
     }
@@ -663,7 +703,7 @@ window.__ModuleLoader__.load({
         }); } },
         h('div', { className: 'dsh-anki-editor-fields' },
           h('p', { className: 'dsh-anki-caption' }, t('fieldHint')),
-          h(Fields, { names: editNames, values: editFields, setValues: setEditFields, disabled: busy }),
+          h(Fields, { names: editNames, values: editFields, setValues: setEditFields, disabled: busy, api, notify }),
           h(Field, { label: t('tags') }, h('input', { value: editTags, placeholder: t('tagsPlaceholder'), disabled: busy, onChange: (event) => setEditTags(event.target.value) }))),
         h('div', { className: 'dsh-anki-editor-footer' },
           note.cards?.length ? button(allSuspended ? t('unsuspend') : t('suspend'), () => perform(async () => {
@@ -714,7 +754,7 @@ window.__ModuleLoader__.load({
         h('div', { className: 'dsh-anki-form-grid' }, h(Field, { label: t('deck') }, h('select', { value: addDeckId, disabled: busy || !decks.length, onChange: (event) => setAddDeckId(event.target.value) }, !decks.length && h('option', { value: '' }, t('chooseDeck')), ...deckOptions)),
           h(Field, { label: t('model') }, h('select', { value: modelId, disabled: busy || !models.length, onChange: (event) => setModelId(event.target.value) }, ...models.map((model) => h('option', { key: String(model.id), value: String(model.id) }, model.name))))),
         !models.length && h('p', { className: 'dsh-anki-muted' }, t('noModels')),
-        h(Fields, { names, values: addFields, setValues: setAddFields, disabled: busy }),
+        h(Fields, { names, values: addFields, setValues: setAddFields, disabled: busy, api, notify }),
         h('p', { className: 'dsh-anki-caption' }, t('fieldHint')),
         selectedModel && (selectedModel.type === 1 || /cloze/i.test(selectedModel.name)) && h('p', { className: 'dsh-anki-caption' }, t('clozeHint')),
         h(Field, { label: t('tags') }, h('input', { value: addTags, placeholder: t('tagsPlaceholder'), disabled: busy, onChange: (event) => setAddTags(event.target.value) })),

@@ -62,7 +62,7 @@
   "fields": "字段",
   "tags": "标签",
   "tagsPlaceholder": "使用空格分隔标签",
-  "fieldHint": "字段支持 Anki HTML，导入的卡片脚本不会执行。",
+  "fieldHint": "字段支持 Anki HTML，可直接粘贴截图存入牌库并插入图片。",
   "clozeHint": "挖空示例：法国的首都是 {{c1::巴黎}}。",
   "save": "保存更改",
   "reloadNote": "重新加载笔记",
@@ -185,5 +185,8 @@
   "savedState": "已保存",
   "unsaved": "未保存草稿",
   "reloadRequired": "需要重新加载",
-  "collectionReady": "已打开"
+  "collectionReady": "已打开",
+  "imageInserted": "图片已存入牌库并插入。",
+  "imageFailed": "粘贴的图片保存失败。",
+  "imageTooLarge": "图片超过 5 MB。"
 }

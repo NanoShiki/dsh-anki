@@ -63,7 +63,7 @@ test('renamed package, native bundle and installer identity remain aligned', asy
   const manifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
   const patch = await readFile(new URL('../cordis.patch.yml', import.meta.url), 'utf8');
   assert.equal(manifest.name, '@nanoshiki/dsh-anki');
-  assert.equal(manifest.version, '2.0.1');
+  assert.equal(manifest.version, '2.1.0');
   assert.equal(manifest.repository.url, 'git+https://github.com/NanoShiki/dsh-anki.git');
   assert.equal(fixture().bundle.id, manifest.name);
   assert.match(patch, /^\s+- id: local-anki$/m);
@@ -108,6 +108,41 @@ test('all five native tabs render and review requires an explicit deck', () => {
       assert.equal(start.props.disabled, true);
     }
   }
+});
+
+test('pasted screenshots upload through media.add and insert img markup', async () => {
+  const f = fixture({ ok: true, value: { filename: 'pasted-abc.png' } });
+  const values = [];
+  values[0] = { noteCount: 0, cardCount: 0, version: '26.05', undo: { available: false } };
+  values[1] = [{ id: 1, name: 'Default', total: 0 }];
+  values[2] = [{ id: 1, name: 'Basic', type: 0, fields: ['Front', 'Back'] }];
+  values[4] = 'add';
+  values[6] = false;
+  values[20] = 1;
+  values[21] = 1;
+  const tree = flatten(f.render(values));
+  // The fake renderer does not invoke nested function components, so render the
+  // Fields component the way React would before locating its textarea.
+  const fields = tree.find((node) => typeof node.type === 'function' && node.type.name === 'Fields');
+  assert.ok(fields, 'the add tab renders the Fields component');
+  const rows = fields.type(fields.props);
+  const textarea = rows.find((row) => row.children.some((child) => child && child.type === 'textarea')).children.find((child) => child && child.type === 'textarea');
+  assert.ok(textarea, 'the add tab renders a note field');
+  let prevented = false;
+  const target = { value: '', selectionStart: 0, selectionEnd: 0 };
+  textarea.props.onPaste({
+    clipboardData: { items: [{ kind: 'file', type: 'image/png', getAsFile: () => ({
+      size: 8,
+      arrayBuffer: async () => new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]).buffer,
+    }) }] },
+    currentTarget: target,
+    preventDefault: () => { prevented = true; },
+  });
+  await new Promise((resolve) => setTimeout(resolve, 10));
+  assert.equal(prevented, true, 'the browser default paste is suppressed for images');
+  assert.ok(f.calls.some(([, action, payload]) => action === 'ankiWorkspace/execute' && payload.args.action === 'media.add'),
+    'the image is uploaded through media.add');
+  assert.equal(target.value, '<img src="pasted-abc.png">', 'the field receives the inserted image markup');
 });
 
 function layoutFixture() {

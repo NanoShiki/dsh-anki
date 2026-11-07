@@ -106,12 +106,35 @@ PARAMS = {
     "review.reveal": {"token"}, "review.answer": {"token", "rating"},
     "review.undo": set(), "import.apkg": {"filename"},
     "export.apkg": {"deckId", "filename"}, "media.get": {"filename"},
+    "media.add": {"data"},
     "review.discard": set(),
     "sync.status": set(), "sync.run": set(), "sync.cancel": set(),
     "account.login": {"username", "password"}, "account.logout": set(),
     "sync.configure": {"autoSync"}, "sync.confirm": {"token", "direction"},
     "sync.dismiss": set(),
 }
+
+
+MEDIA_TYPES = {
+    ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif",
+    ".webp": "image/webp", ".avif": "image/avif", ".bmp": "image/bmp", ".mp3": "audio/mpeg",
+    ".ogg": "audio/ogg", ".wav": "audio/wav", ".m4a": "audio/mp4", ".aac": "audio/aac",
+    ".flac": "audio/flac", ".opus": "audio/ogg", ".woff": "font/woff", ".woff2": "font/woff2",
+    ".ttf": "font/ttf", ".otf": "font/otf",
+}
+
+
+def pasted_image_extension(data):
+    """Magic-byte sniffing for the four raster formats accepted by paste."""
+    if data.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "png"
+    if data.startswith(b"\xff\xd8\xff"):
+        return "jpg"
+    if data[:6] in (b"GIF87a", b"GIF89a"):
+        return "gif"
+    if len(data) >= 12 and data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return "webp"
+    return None
 
 
 def validate_apkg(path):
@@ -713,6 +736,32 @@ class Worker:
         if len(data) > 5 * 1024 * 1024:
             raise RequestError("MEDIA_TOO_LARGE", "Media exceeds 5 MB")
         return {"mime": mime, "data": base64.b64encode(data).decode("ascii")}
+
+    def media_add(self, p):
+        """Store one pasted image in the collection media through Anki.
+
+        The client only sends base64 image bytes; the filename is derived from
+        the content hash so identical pastes dedupe and no caller-supplied path
+        ever reaches the filesystem.
+        """
+        encoded = p.get("data")
+        if not isinstance(encoded, str) or encoded == "":
+            invalid("data must be a non-empty base64 string")
+        try:
+            data = base64.b64decode(encoded, validate=True)
+        except (ValueError, TypeError):
+            raise RequestError("VALIDATION_ERROR", "data must be valid base64")
+        limit = 5 * 1024 * 1024
+        if len(data) == 0:
+            raise RequestError("VALIDATION_ERROR", "data must not be empty")
+        if len(data) > limit:
+            raise RequestError("MEDIA_TOO_LARGE", "Media exceeds 5 MB")
+        extension = pasted_image_extension(data)
+        if extension is None:
+            raise RequestError("MEDIA_TYPE_NOT_ALLOWED", "Only PNG, JPEG, GIF and WebP images can be pasted")
+        filename = "pasted-%s.%s" % (hashlib.sha256(data).hexdigest()[:16], extension)
+        stored = self.col.media.write_data(filename, data)
+        return {"filename": stored, "mime": MEDIA_TYPES["." + extension]}
 
 
 def error_response(request_id, error):
