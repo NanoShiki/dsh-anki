@@ -12,9 +12,12 @@ const scratch = await mkdtemp(join(fileURLToPath(new URL('.', import.meta.url)),
 process.env.PYTHONPATH = join(scratch, 'nonexistent-external-python');
 process.env.PYTHONHOME = join(scratch, 'nonexistent-external-home');
 process.env.ANKI_PACKAGES = join(scratch, 'nonexistent-external-anki');
+const { AnkiWorkerClient } = await import(pathToFileURL(join(root, 'worker-client.js')).href);
+const worker = new AnkiWorkerClient({ dataDir: join(scratch, 'collection') });
+if (worker.mac) await worker.mac.prepare();
 const probe = `import sys, pathlib, json
 root = pathlib.Path(sys.argv[1]).resolve()
-core = root / 'core'
+core = pathlib.Path(sys.argv[2]).resolve()
 sys.path.insert(0, str(core))
 import anki, anki._rsbridge, decorator, markdown, orjson, google.protobuf, requests, typing_extensions, charset_normalizer, idna, urllib3, certifi, socks
 modules = [anki, anki._rsbridge, decorator, markdown, orjson, google.protobuf, requests, typing_extensions, charset_normalizer, idna, urllib3, certifi, socks]
@@ -22,16 +25,14 @@ for module in modules:
     locations = [module.__file__] if module.__file__ else list(module.__path__)
     assert locations and all(pathlib.Path(location).resolve().is_relative_to(core) for location in locations), (module.__name__, locations)
 for entry in sys.path:
-    assert pathlib.Path(entry).resolve().is_relative_to(root), sys.path
+    assert pathlib.Path(entry).resolve().is_relative_to(root) or pathlib.Path(entry).resolve().is_relative_to(core), sys.path
 assert not any(name == 'aqt' or name.startswith('PyQt') for name in sys.modules)
 print(json.dumps({'bundledImports': len(modules), 'paths': sys.path}))
 `;
-const result = spawnSync(join(root, 'runtime/python.exe'), ['-B', '-c', probe, root], { encoding: 'utf8', env: process.env, cwd: scratch });
+const result = spawnSync(worker.pythonPath, ['-I', '-B', '-c', probe, worker.mac ? join(worker.pythonPath, '..', '..') : root, worker.ankiPackages], { encoding: 'utf8', env: process.env, cwd: scratch });
 assert.equal(result.status, 0, result.stderr || String(result.error));
 const imports = JSON.parse(result.stdout);
-const { AnkiWorkerClient } = await import(pathToFileURL(join(root, 'worker-client.js')).href);
-const worker = new AnkiWorkerClient({ dataDir: join(scratch, 'collection') });
-assert.equal(worker.ankiPackages, join(root, 'core'));
+assert.equal(worker.bundledCore, true);
 assert.equal(worker.bundledPython, true);
 try {
   const status = await worker.call('status');

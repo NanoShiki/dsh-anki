@@ -1,3 +1,4 @@
+import { join } from 'node:path';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
@@ -5,8 +6,10 @@ import { PassThrough } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { AnkiWorkerClient } from '../worker-client.js';
 
-const runtime = fileURLToPath(new URL(process.platform === 'win32' ? '../runtime/python.exe' : '../runtime/bin/python3', import.meta.url));
-const core = fileURLToPath(new URL('../core', import.meta.url));
+import { macBundle } from '../macos/bundle.js';
+const mac = process.platform === 'darwin' && macBundle(fileURLToPath(new URL('..', import.meta.url)));
+const runtime = mac.python || fileURLToPath(new URL(process.platform === 'win32' ? '../runtime/python.exe' : '../runtime/bin/python3', import.meta.url));
+const core = mac.core || fileURLToPath(new URL('../core', import.meta.url));
 const dataDir = fileURLToPath(new URL('./private-fixture', import.meta.url));
 function harness(handler, options = {}) {
   const generations = [];
@@ -38,7 +41,7 @@ for (const options of [{}, { pythonPath: '', ankiPackages: '' }]) test(`module-r
     assert.equal(h.generations[0].executable, runtime);
     const args = h.generations[0].args;
     assert.equal(args[args.indexOf('--anki-packages') + 1], core);
-    assert.deepEqual(checked, [runtime, fileURLToPath(new URL('../core/anki', import.meta.url))]);
+    assert.deepEqual(checked, [runtime, join(core, 'anki')]);
   } finally { await h.worker.close(); }
 });
 

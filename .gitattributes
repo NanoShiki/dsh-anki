@@ -5,3 +5,4 @@ core/** -text
 third-party-licenses/*.txt -text
 core-lock.json -text
 core-sha256.json -text
+macos/*.tar.gz -text

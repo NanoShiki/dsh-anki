@@ -91,3 +91,10 @@
 /tests/*
 !/tests/*.py
 !/tests/*.mjs
+
+!/macos/
+/macos/*
+!/macos/bundle.js
+!/macos/*.tar.gz
+!/macos/*.json
+!/scripts/setup_macos.py

@@ -1,3 +1,7 @@
+# macOS support — 2.2.0 test build
+
+GitHub Actions on macOS 15 (Apple Silicon and Intel) exercised the packaged plugin from a separate directory, imported 13 modules from the bundled core, and used a temporary collection to add, find, review and export notes. Both architectures passed the 84 client tests and 40 backend tests, including Keychain storage and native loopback collection/media sync. Windows CI also passed. These checks exercise the plugin backend and transport; DSH desktop UI installation and a real AnkiWeb account remain manual acceptance steps.
+
 # Verification record — 2.1.0 / 2026-11-08
 
 The Windows client suite passed 84 tests and the bundled Anki backend passed 40. Media tests cover upload, lookup, deduplication and invalid inputs. In Edge with a simulated collection, the add form preserved bold text and pasted rich HTML, uploaded a clipboard image and submitted its filename. Reopening the note in Browse displayed the image inline. Editing the source and saving preserved custom markup.

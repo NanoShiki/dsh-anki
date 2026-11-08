@@ -4,6 +4,8 @@ import { existsSync } from 'node:fs';
 import { join, isAbsolute, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { macBundle } from './macos/bundle.js';
+
 const ROOT = fileURLToPath(new URL('.', import.meta.url));
 export class AnkiWorkerError extends Error {
   constructor(code, message) { super(message); this.name = 'AnkiWorkerError'; this.code = code; }
@@ -20,8 +22,9 @@ export class AnkiWorkerClient {
     if (typeof dataDir !== 'string' || !isAbsolute(dataDir)) throw new AnkiWorkerError('path-invalid', 'dataDir must be an absolute path.');
     this.bundledPython = pythonPath === '';
     this.bundledCore = ankiPackages === '';
-    this.pythonPath = pythonPath ? resolve(pythonPath) : join(ROOT, 'runtime', process.platform === 'win32' ? 'python.exe' : 'bin/python3');
-    this.ankiPackages = ankiPackages ? resolve(ankiPackages) : join(ROOT, 'core');
+    this.mac = process.platform === 'darwin' && (this.bundledPython || this.bundledCore) ? macBundle(ROOT) : null;
+    this.pythonPath = pythonPath ? resolve(pythonPath) : this.mac?.python ?? join(ROOT, 'runtime', process.platform === 'win32' ? 'python.exe' : 'bin/python3');
+    this.ankiPackages = ankiPackages ? resolve(ankiPackages) : this.mac?.core ?? join(ROOT, 'core');
     this.dataDir = resolve(dataDir);
     this.pathExists = pathExists;
     this.timeoutMs = timeoutMs;
@@ -47,7 +50,7 @@ export class AnkiWorkerClient {
         ? 'Bundled Anki core is missing. Reinstall the complete Anki workspace package; no external installation is used automatically.'
         : 'Configured Anki core is missing. Check the absolute ankiPackages override or clear it to use the bundled core.');
     }
-    const child = this.spawnProcess(this.pythonPath, ['-B', '-u', join(ROOT, 'backend', 'worker.py'), '--data-dir', this.dataDir, '--anki-packages', this.ankiPackages], {
+    const child = this.spawnProcess(this.pythonPath, [...(process.platform === 'darwin' ? ['-I', '-X', 'utf8'] : []), '-B', '-u', join(ROOT, 'backend', 'worker.py'), '--data-dir', this.dataDir, '--anki-packages', this.ankiPackages], {
       windowsHide: true,
       stdio: ['pipe', 'pipe', 'pipe'],
       env: { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUTF8: '1' },
@@ -127,6 +130,11 @@ export class AnkiWorkerClient {
     try { wire = JSON.stringify({ id, action, params }) + '\n'; }
     catch { throw new AnkiWorkerError('request-invalid', 'Anki request must be JSON-serializable.'); }
     if (Buffer.byteLength(wire, 'utf8') > 2 * 1024 * 1024 + 1024) throw new AnkiWorkerError('request-limit', 'Anki request exceeds its size limit.');
+    if (this.mac && !this.child) {
+      await this.mac.prepare();
+      if (signal?.aborted) throw new AnkiWorkerError('cancelled', 'Operation was cancelled before dispatch.');
+      if (canDispatch && !canDispatch()) throw new AnkiWorkerError('auto-deferred', 'Collection activity changed during runtime setup.');
+    }
     this.start();
     const child = this.child;
     return new Promise((resolve, reject) => {

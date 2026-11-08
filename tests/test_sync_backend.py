@@ -19,7 +19,7 @@ from worker import Worker, RequestError
 from sync_service import ProtectedState, SyncManager
 
 
-@unittest.skipUnless(os.name == "nt", "Current-user Windows DPAPI is required")
+@unittest.skipUnless(os.name == "nt" or sys.platform == "darwin", "Requires DPAPI or Keychain")
 class SyncTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix=".test-sync-", dir=PROJECT / "backend")
@@ -31,6 +31,8 @@ class SyncTests(unittest.TestCase):
     def tearDown(self):
         for worker in self.workers:
             worker.close()
+            if sys.platform == "darwin":
+                worker.sync.store.clear()
         self.stop_server()
         self.temp.cleanup()
 
@@ -118,8 +120,13 @@ class SyncTests(unittest.TestCase):
         w.ensure_storage()
         w.sync.auth, w.sync.account = "private-token-sentinel", "name@example.invalid"
         w.sync.persist()
-        raw = (w.root / "sync-state.dpapi").read_bytes()
-        self.assertTrue(raw.startswith(ProtectedState.MAGIC))
+        if sys.platform == "darwin":
+            self.assertFalse((w.root / "sync-state.dpapi").exists())
+            self.assertIsNone(self.worker("another-workspace").sync.store.load())
+            raw = b"".join(p.read_bytes() for p in w.root.iterdir() if p.is_file() and p.name != "worker.lock")
+        else:
+            raw = (w.root / "sync-state.dpapi").read_bytes()
+            self.assertTrue(raw.startswith(ProtectedState.MAGIC))
         self.assertNotIn(b"private-token-sentinel", raw)
         self.assertNotIn(b"name@example.invalid", raw)
         self.assertEqual(w.sync.store.load()["hkey"], "private-token-sentinel")
@@ -279,9 +286,12 @@ class SyncTests(unittest.TestCase):
         a.dispatch("sync.run", {})
         self.wait(a, "success")
         self.assertEqual(a.col.note_count(), 2)
-        protected = (a.root / "sync-state.dpapi").read_bytes()
-        for forbidden in (b"secret-test-password", a.sync.auth.encode()):
-            self.assertNotIn(forbidden, protected)
+        if os.name == "nt":
+            protected = (a.root / "sync-state.dpapi").read_bytes()
+            for forbidden in (b"secret-test-password", a.sync.auth.encode()):
+                self.assertNotIn(forbidden, protected)
+        else:
+            self.assertEqual(a.sync.store.load()["hkey"], a.sync.auth)
         self.assertNotIn(a.sync.auth, json.dumps(a.dispatch("sync.status", {})))
 
     def test_native_bad_login_and_auth_rejection_clear_saved_auth(self):

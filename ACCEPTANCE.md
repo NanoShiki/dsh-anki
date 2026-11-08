@@ -28,3 +28,7 @@ Follow [README](<README.md>) for backup/upgrade precautions and supported limita
 ## Rich text fields (2.1.0)
 
 In Add, select text, press Ctrl+B and paste a screenshot at the caret. Save and reopen the note in Browse. Confirm that bold text and the inline image survive, then use the HTML source button to check the image filename. Save an edit and verify the result during review.
+
+## macOS install
+
+Import the test tarball into the DSH plugin manager on an Intel or Apple Silicon Mac and keep both runtime overrides empty. Add a note, paste an image, save and review the card. Restart DSH to check the note and media again. If testing sync, sign in through the owner UI, restart DSH to confirm the workspace account persists, and sign out.

@@ -57,3 +57,8 @@ https://raw.githubusercontent.com/spdx/license-list-data/main/text/AGPL-3.0-or-l
 Canonical GNU reference: https://www.gnu.org/licenses/agpl-3.0.html
 
 These notices describe known included/external components, not a claim that every possible transitive dependency is licensed identically or that no further obligations apply.
+
+## macOS
+
+The offline arm64 and x86_64 runtimes are unmodified install-only stripped archives from [Astral's python-build-standalone 20250612](https://github.com/astral-sh/python-build-standalone/releases/tag/20250612). Archive URLs and SHA-256 values are in `macos/sources.json`. Both architectures use the same Anki and Python package versions as Windows. Mac-specific native wheel URLs and hashes are in that same file. The assembled core archives retain wheel metadata and licenses.
+The upstream full-build license texts are included in `third-party-licenses/macos-python/`.

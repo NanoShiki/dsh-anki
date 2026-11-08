@@ -1,6 +1,6 @@
 {
   "name": "@nanoshiki/dsh-anki",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "type": "module",
   "description": "Native DSH Anki workspace with isolated headless Anki core and shared AI operations.",
   "license": "AGPL-3.0-or-later",
@@ -13,7 +13,7 @@
     "./icon": "./icon.svg"
   },
   "files": [
-    "index.js", "auto-sync.js", "worker-client.js", "client.js", "backend/*.py", "runtime/**",
+    "index.js", "auto-sync.js", "worker-client.js", "client.js", "backend/*.py", "runtime/**", "macos/*", "scripts/setup_macos.py",
     "cordis.patch.yml", "locale/*.json", "icon.svg", "README.md", "LICENSE", "THIRD-PARTY-NOTICES.md", "ANKI-LICENSE.txt", "VERIFICATION.md", "ACCEPTANCE.md", "runtime-sha256.json", "scripts/setup_runtime.py", "core/**", "core-lock.json", "core-sha256.json", "scripts/setup_core.py", "!core/**/__pycache__/**", "!core/**/*.pyc", "third-party-licenses/**"
   ],
   "scripts": {

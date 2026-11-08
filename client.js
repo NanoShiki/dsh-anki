@@ -407,6 +407,10 @@ window.__ModuleLoader__.load({
       for (const child of root.childNodes) copy(box, child);
       return { html: box.innerHTML, complete };
     }
+    function formatLabel(t, action) {
+      const label = t(action);
+      return /Mac/.test(globalThis.navigator?.platform || '') ? label.replace('Ctrl+', '⌘') : label;
+    }
     function RichField({ name, value, setValues, disabled, api, notify, perform, t }) {
       const [source, setSource] = React.useState(false);
       const editor = React.useRef(null);
@@ -511,7 +515,7 @@ window.__ModuleLoader__.load({
       const buttons = [['bold', 'B'], ['italic', 'I'], ['underline', 'U'], ['superscript', 'x²'], ['subscript', 'x₂'], ['insertUnorderedList', '•'], ['insertOrderedList', '1.'], ['removeFormat', 'Tx']];
       return h('div', { className: 'dsh-anki-field' }, h('span', null, name),
         h('div', { className: 'dsh-anki-format', role: 'group', 'aria-label': name },
-          !source && buttons.map(([action, symbol]) => h('button', { key: action, type: 'button', title: t(action), 'aria-label': t(action), disabled,
+          !source && buttons.map(([action, symbol]) => h('button', { key: action, type: 'button', title: formatLabel(t, action), 'aria-label': formatLabel(t, action), disabled,
             onMouseDown: (e) => e.preventDefault(), onClick: () => command(action) }, symbol)),
           h('button', { type: 'button', title: t('htmlMode'), 'aria-label': t('htmlMode'), 'aria-pressed': source, disabled,
             onClick: () => { if (source && !richMarkup(value).complete) { notify('sourceRequired'); return; } lastValue.current = null; setSource(!source); } }, '</>')),

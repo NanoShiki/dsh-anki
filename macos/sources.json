@@ -1,0 +1,68 @@
+{
+  "arm64": {
+    "runtime": {
+      "filename": "cpython-3.13.5+20250612-aarch64-apple-darwin-install_only_stripped.tar.gz",
+      "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20250612/cpython-3.13.5%2B20250612-aarch64-apple-darwin-install_only_stripped.tar.gz",
+      "sha256": "3e52e6b539dca2729788a06f3f47b2edfc30ba3ef82eb14926f0a23ed0ce4cff"
+    },
+    "wheels": {
+      "anki": {
+        "filename": "anki-26.5-cp310-abi3-macosx_12_0_arm64.whl",
+        "url": "https://files.pythonhosted.org/packages/1d/9e/d61044b5dd8bd0a215ca58ccf524661a9c5bbc443821101314e8d64cf441/anki-26.5-cp310-abi3-macosx_12_0_arm64.whl",
+        "size": 9827672,
+        "sha256": "f88adc18fbfa6ad721e5a2274cf216a0b78274da2f64ce30ea4da2680f2ba9d9"
+      },
+      "orjson": {
+        "filename": "orjson-3.11.9-cp313-cp313-macosx_10_15_x86_64.macosx_11_0_arm64.macosx_10_15_universal2.whl",
+        "url": "https://files.pythonhosted.org/packages/32/33/93fcc25907235c344ae73122f8a4e01d2d393ef062b4af7d2e2487a32c37/orjson-3.11.9-cp313-cp313-macosx_10_15_x86_64.macosx_11_0_arm64.macosx_10_15_universal2.whl",
+        "size": 228458,
+        "sha256": "4bab1b2d6141fe7b32ae71dac905666ece4f94936efbfb13d55bb7739a3a6021"
+      },
+      "protobuf": {
+        "filename": "protobuf-7.35.1-cp310-abi3-macosx_10_9_universal2.whl",
+        "url": "https://files.pythonhosted.org/packages/10/03/8aeeb7458d22546bf64b5250ca1daeb5ff757d900e8e4a7476c6f0db843e/protobuf-7.35.1-cp310-abi3-macosx_10_9_universal2.whl",
+        "size": 433226,
+        "sha256": "24f857477359a85c0c235261b8ba905fd51b2562f4a64ca1df5473f29850cbf6"
+      },
+      "charset_normalizer": {
+        "filename": "charset_normalizer-3.4.7-cp313-cp313-macosx_10_13_universal2.whl",
+        "url": "https://files.pythonhosted.org/packages/c1/3b/66777e39d3ae1ddc77ee606be4ec6d8cbd4c801f65e5a1b6f2b11b8346dd/charset_normalizer-3.4.7-cp313-cp313-macosx_10_13_universal2.whl",
+        "size": 309627,
+        "sha256": "f496c9c3cc02230093d8330875c4c3cdfc3b73612a5fd921c65d39cbcef08063"
+      }
+    }
+  },
+  "x64": {
+    "runtime": {
+      "filename": "cpython-3.13.5+20250612-x86_64-apple-darwin-install_only_stripped.tar.gz",
+      "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20250612/cpython-3.13.5%2B20250612-x86_64-apple-darwin-install_only_stripped.tar.gz",
+      "sha256": "fce29c000087f0ed966580aff703117d8238e2be043a90a2a0ec8352c0708db8"
+    },
+    "wheels": {
+      "anki": {
+        "filename": "anki-26.5-cp310-abi3-macosx_12_0_x86_64.whl",
+        "url": "https://files.pythonhosted.org/packages/5e/3b/3bd5fd018054d33aec3dbb2403668460d1c2b7d35d25e894be6cd2e0ff8a/anki-26.5-cp310-abi3-macosx_12_0_x86_64.whl",
+        "size": 10365727,
+        "sha256": "a2f0d035fbd016300bdc23e699d986c38497c75bffe36f17c047b5d3db7c6122"
+      },
+      "orjson": {
+        "filename": "orjson-3.11.9-cp313-cp313-macosx_10_15_x86_64.macosx_11_0_arm64.macosx_10_15_universal2.whl",
+        "url": "https://files.pythonhosted.org/packages/32/33/93fcc25907235c344ae73122f8a4e01d2d393ef062b4af7d2e2487a32c37/orjson-3.11.9-cp313-cp313-macosx_10_15_x86_64.macosx_11_0_arm64.macosx_10_15_universal2.whl",
+        "size": 228458,
+        "sha256": "4bab1b2d6141fe7b32ae71dac905666ece4f94936efbfb13d55bb7739a3a6021"
+      },
+      "protobuf": {
+        "filename": "protobuf-7.35.1-cp310-abi3-macosx_10_9_universal2.whl",
+        "url": "https://files.pythonhosted.org/packages/10/03/8aeeb7458d22546bf64b5250ca1daeb5ff757d900e8e4a7476c6f0db843e/protobuf-7.35.1-cp310-abi3-macosx_10_9_universal2.whl",
+        "size": 433226,
+        "sha256": "24f857477359a85c0c235261b8ba905fd51b2562f4a64ca1df5473f29850cbf6"
+      },
+      "charset_normalizer": {
+        "filename": "charset_normalizer-3.4.7-cp313-cp313-macosx_10_13_universal2.whl",
+        "url": "https://files.pythonhosted.org/packages/c1/3b/66777e39d3ae1ddc77ee606be4ec6d8cbd4c801f65e5a1b6f2b11b8346dd/charset_normalizer-3.4.7-cp313-cp313-macosx_10_13_universal2.whl",
+        "size": 309627,
+        "sha256": "f496c9c3cc02230093d8330875c4c3cdfc3b73612a5fd921c65d39cbcef08063"
+      }
+    }
+  }
+}

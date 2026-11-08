@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import secrets
 import shutil
+import sys
 import threading
 import time
 from urllib.parse import urlparse
@@ -69,6 +70,9 @@ class ProtectedState:
             raise RuntimeError("Invalid protected state")
         return json.loads(self.crypt(raw[len(self.MAGIC):], decrypt=True))
 
+    def clear(self):
+        self.worker.owned("sync-state.dpapi").unlink(missing_ok=True)
+
     def save(self, data):
         path = self.worker.owned("sync-state.dpapi")
         payload = self.MAGIC + self.crypt(json.dumps(data, separators=(",", ":")).encode())
@@ -101,7 +105,11 @@ class SyncManager:
         # Internal constructor injection for isolated official-syncserver tests.
         # No command-line, environment, JSONL or persisted custom endpoint input.
         self.test_endpoint = test_endpoint
-        self.store = ProtectedState(worker)
+        if sys.platform == "darwin":
+            from keychain import KeychainState
+            self.store = KeychainState(worker)
+        else:
+            self.store = ProtectedState(worker)
         self.auth = None
         self.account = None
         self.settings = {"autoSync": True}
@@ -126,7 +134,7 @@ class SyncManager:
                     self.auth = data["hkey"]
                     self.account = data.get("username")
         except Exception:
-            self.snapshot["error"] = {"code": "CREDENTIAL_STORAGE_ERROR", "message": "Saved sign-in could not be unlocked. Sign in again on this Windows account."}
+            self.snapshot["error"] = {"code": "CREDENTIAL_STORAGE_ERROR", "message": "Saved sign-in could not be unlocked. Sign in again on this system account."}
             self.snapshot["phase"] = "error"
 
     def allowed_endpoint(self, value):
@@ -233,9 +241,7 @@ class SyncManager:
         elif isinstance(error, SyncError) and error.kind == SyncErrorKind.AUTH:
             self.auth = self.account = self.saved_endpoint = None
             try:
-                path = self.worker.owned("sync-state.dpapi")
-                if path.exists():
-                    path.unlink()
+                self.store.clear()
                 self.persist()
             except Exception:
                 pass
@@ -406,16 +412,14 @@ class SyncManager:
                 self.persist()
             except Exception:
                 self.settings["autoSync"] = old
-                raise self.Error("CREDENTIAL_STORAGE_ERROR", "Could not protect sync settings with Windows DPAPI")
+                raise self.Error("CREDENTIAL_STORAGE_ERROR", "Could not protect sync settings in the system credential store")
         elif action == "account.logout":
             self.worker.ensure_storage()
             self.auth = self.account = self.saved_endpoint = None
             self.host_number = 0
             self.pending = None
             # Remove the old token before writing token-free settings.
-            path = self.worker.owned("sync-state.dpapi")
-            if path.exists():
-                path.unlink()
+            self.store.clear()
             self.persist()
             self.update(phase="idle", error=None, pendingFull=None, progress=None)
         elif action == "account.login":
@@ -425,10 +429,14 @@ class SyncManager:
             if not isinstance(password, str) or not 1 <= len(password) <= 4096:
                 raise self.Error("INVALID_PARAMS", "password must be a nonempty string of at most 4096 characters")
             self.worker.ensure_storage()
-            # Fail closed before sending a password if DPAPI is unavailable.
-            self.store.crypt(b"availability-check")
+            # Prove the credential store is writable before contacting AnkiWeb.
+            previous = self.auth, self.account, self.saved_endpoint
             self.auth = self.account = self.saved_endpoint = None
-            self.persist()
+            try:
+                self.persist()
+            except Exception:
+                self.auth, self.account, self.saved_endpoint = previous
+                raise self.Error("CREDENTIAL_STORAGE_ERROR", "Could not access the system credential store")
             def login():
                 self.check_cancel()
                 result = self.worker.col.sync_login(username.strip(), password, self.test_endpoint)
