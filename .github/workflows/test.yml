@@ -67,3 +67,11 @@ jobs:
       - run: npm run test:client
       - name: Native backend and loopback sync
         run: '"$ANKI_PYTHON" -B -m unittest discover -s tests -p "test_*.py"'
+      - name: Share the verified test package
+        if: matrix.runner == 'macos-15' && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dsh-anki-macos-windows
+          path: ${{ runner.temp }}/nanoshiki-dsh-anki-*.tgz
+          if-no-files-found: error
+          compression-level: 0

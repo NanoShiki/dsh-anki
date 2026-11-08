@@ -43,7 +43,8 @@ with tarfile.open(archive, 'r:gz') as release:
         assert set(parts) == {'python', 'core'}
         for part, expected_hash in parts.items():
             assert hashlib.sha256(files[f'package/macos/{part}-{arch}.tar.gz']).hexdigest() == expected_hash
-    for name in ('macos/bundle.js', 'macos/sources.json', 'backend/keychain.py', 'scripts/setup_macos.py'):
+    for name in ('macos/bundle.js', 'macos/sources.json', 'backend/keychain.py', 'scripts/setup_macos.py',
+                 'third-party-licenses/macos-python/LICENSE.cpython.txt', 'third-party-licenses/macos-python/LICENSE.openssl-3.txt'):
         assert 'package/' + name in files
     runtime = json.loads(files['package/runtime-sha256.json'])
     assert runtime['version'] == '3.13.5'

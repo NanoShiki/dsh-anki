@@ -429,9 +429,14 @@ class SyncManager:
             if not isinstance(password, str) or not 1 <= len(password) <= 4096:
                 raise self.Error("INVALID_PARAMS", "password must be a nonempty string of at most 4096 characters")
             self.worker.ensure_storage()
-            # Persist token-free state before sending credentials to the network.
+            # Prove the credential store is writable before contacting AnkiWeb.
+            previous = self.auth, self.account, self.saved_endpoint
             self.auth = self.account = self.saved_endpoint = None
-            self.persist()
+            try:
+                self.persist()
+            except Exception:
+                self.auth, self.account, self.saved_endpoint = previous
+                raise self.Error("CREDENTIAL_STORAGE_ERROR", "Could not access the system credential store")
             def login():
                 self.check_cancel()
                 result = self.worker.col.sync_login(username.strip(), password, self.test_endpoint)

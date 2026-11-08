@@ -61,3 +61,4 @@ These notices describe known included/external components, not a claim that ever
 ## macOS
 
 The offline arm64 and x86_64 runtimes are unmodified install-only stripped archives from [Astral's python-build-standalone 20250612](https://github.com/astral-sh/python-build-standalone/releases/tag/20250612). Archive URLs and SHA-256 values are in `macos/sources.json`. Both architectures use the same Anki and Python package versions as Windows. Mac-specific native wheel URLs and hashes are in that same file. The assembled core archives retain wheel metadata and licenses.
+The upstream full-build license texts are included in `third-party-licenses/macos-python/`.
