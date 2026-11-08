@@ -31,3 +31,39 @@ jobs:
         run: runtime/python.exe -B -m unittest discover -s tests -p "test_*.py"
       - name: Release manifest and locale metadata
         run: runtime/python.exe tests/check_manifest.py
+
+  macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-15-intel]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Prepare an isolated default Keychain
+        run: |
+          keychain="$RUNNER_TEMP/anki-tests.keychain-db"
+          security create-keychain -p ci "$keychain"
+          security unlock-keychain -p ci "$keychain"
+          security list-keychains -d user -s "$keychain"
+          security default-keychain -d user -s "$keychain"
+      - name: Install and exercise the packed plugin
+        run: |
+          npm pack --silent --pack-destination "$RUNNER_TEMP"
+          mkdir "$RUNNER_TEMP/relocated"
+          tar -xzf "$RUNNER_TEMP"/nanoshiki-dsh-anki-*.tgz -C "$RUNNER_TEMP/relocated"
+          node tests/self-contained-smoke.mjs "$RUNNER_TEMP/relocated/package"
+          node --input-type=module <<'NODE' >> "$GITHUB_ENV"
+          import { macBundle } from './macos/bundle.js';
+          const b = macBundle(process.cwd());
+          await b.prepare();
+          console.log('ANKI_PYTHON=' + b.python);
+          console.log('ANKI_PACKAGES=' + b.core);
+          NODE
+      - run: npm run test:client
+      - name: Native backend and loopback sync
+        run: '"$ANKI_PYTHON" -B -m unittest discover -s tests -p "test_*.py"'

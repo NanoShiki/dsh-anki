@@ -1,0 +1,10 @@
+{
+  "arm64": {
+    "python": "3e52e6b539dca2729788a06f3f47b2edfc30ba3ef82eb14926f0a23ed0ce4cff",
+    "core": "84daef503a46f50cb5c10a0accc5e659ce2da06b5ad1001b2501ea466e5b6f21"
+  },
+  "x64": {
+    "python": "fce29c000087f0ed966580aff703117d8238e2be043a90a2a0ec8352c0708db8",
+    "core": "6ccde016875313cbf375c8f1b68932330fcc7bcbe58af213ca13f69c71eee59e"
+  }
+}

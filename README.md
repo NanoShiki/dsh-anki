@@ -6,7 +6,9 @@
 
 ## 安装与升级
 
-**环境要求：** Windows x64、DSH `^0.2.1-rc.2`（已在 **0.2.1-rc.3** 验证；`@deepseek-ai/dsh*` peer 声明为范围而不是精确版本）。随包提供 CPython 3.13.5、官方 PyPI Anki **26.5 / 26.05** Windows x64 wheel 及其依赖；不包含 Qt 或 Anki 桌面界面。**不要求已有 Anki/Python 安装，不在首次启动时下载运行依赖。** AnkiWeb 同步仍需网络和自己的账号。
+**环境要求：** Windows x64 或 macOS 12 及以上（Apple Silicon、Intel），DSH `^0.2.1-rc.2`（已在 **0.2.1-rc.3** 验证；`@deepseek-ai/dsh*` peer 声明为范围而不是精确版本）。随包提供 CPython 3.13.5、官方 PyPI Anki **26.5 / 26.05** 原生 wheel 及其依赖；不包含 Qt 或 Anki 桌面界面。**不要求已有 Anki/Python 安装，不在首次启动时下载运行依赖。** AnkiWeb 同步仍需网络和自己的账号。
+
+macOS 测试包与 Windows 共用一个 `.tgz`。在 DSH 插件管理器中导入，保持 `pythonPath` 和 `ankiPackages` 为空。第一次使用时会把适合当前 DSH 进程架构的运行时解压到 `~/Library/Caches/dsh-anki/`。系统清理缓存后，下次使用会从安装包重建。同步登录如遇钥匙串提示，允许访问此工作区的同步凭据。
 
 ### 首次安装（公开 Release 安装包）
 
@@ -58,7 +60,7 @@
 
 ## 登录与同步
 
-- 账号密码**只在仅所有者可见的同步页**输入，不要发到聊天里。密码是临时的，提交后即从表单清除；可复用的登录令牌与设置通过 **Windows 当前用户 DPAPI** 加密保存，并额外绑定工作区路径，没有明文降级。换一个 Windows 用户或换路径可能需要重新登录；退出登录会删除已存令牌。本插件不读取其它 Anki 安装的凭据。
+- 账号密码**只在仅所有者可见的同步页**输入，不要发到聊天里。密码是临时的，提交后即从表单清除；可复用的登录令牌与设置由 Windows 当前用户 DPAPI 或 macOS 登录钥匙串保护，并额外绑定工作区路径，没有明文降级。换一个 Windows 用户或换路径可能需要重新登录；退出登录会删除已存令牌。本插件不读取其它 Anki 安装的凭据。
 - **立即同步**会先做原生牌库同步、再做原生媒体同步，并显示进度、支持取消。完成时间戳只在两者都成功后才写入。原生任务占用牌库期间其它操作不可用，但状态查询与取消始终保持响应。
 - **自动同步默认开启**，页面上有可见开关。宿主会在启动/登录后、编辑或复习成功后约 15 秒空闲时、以及大约每 5 分钟各调度一次；存在未处理的复习卡片时会推迟，直到作答或离开。离线失败会退避；它不依赖你停留在同步页，客户端计时器只读取状态。
 - **任何全量上传/下载都会停下来等待明确确认。** 页面会显示允许的方向与本地笔记数，并且必须勾选「覆盖警告」。本地库为空且在允许时会推荐下载。确认会过期且只能使用一次；**AI 与自动同步都不能替你确认方向**。
@@ -96,13 +98,13 @@ AI 的读取操作（含 `sync.status`）在只读模式下即可工作。**修�
 
 A native DSH sidebar and an `anki` AI tool sharing **one independent, per-DSH-profile collection**, powered by real headless Anki — no Anki desktop window, AnkiConnect, Qt or replacement web server is started. Independent integration, not an official Anki product. Version 2.0.0 bundles the headless core and its Python dependencies for out-of-the-box installation, retaining the native responsive layout.
 
-**Requirements:** Windows x64 and DSH `^0.2.1-rc.2` (verified on **0.2.1-rc.3**; `@deepseek-ai/dsh*` peers are declared as ranges, not exact pins). CPython 3.13.5, official Anki **26.5 / 26.05** headless core and all its Python runtime dependencies are bundled. No separate Anki/Python/pip installation or first-start dependency download is required. Qt is not bundled.
+**Requirements:** Windows x64 or macOS 12+ (Apple Silicon and Intel), and DSH `^0.2.1-rc.2` (verified on **0.2.1-rc.3**; `@deepseek-ai/dsh*` peers are declared as ranges, not exact pins). CPython 3.13.5, official Anki **26.5 / 26.05** headless core and all its Python runtime dependencies are bundled. No separate Anki/Python/pip installation or first-start dependency download is required. Qt is not bundled.
 
 **Install:** From 2.0.1 the package is published to npm as `@nanoshiki/dsh-anki`, so the plugin manager installs it by name and the market can offer version updates. The prebuilt `dsh-anki.tgz` on [the latest release](https://github.com/NanoShiki/dsh-anki/releases/latest) remains available as an offline alternative; both share the same data directory. Leave `ankiPackages` and `pythonPath` empty and use the bundled runtime; explicit absolute overrides remain supported, with no silent external fallback.
 
 **Upgrade:** wait for sync, disable the plugin and let its Python worker exit, back up the whole data directory, then replace the installed package with the new release archive, keeping the data directory unchanged and clearing old `ankiPackages` / `pythonPath` overrides to select the bundled runtime. Version 2.0.0 renames the package to `@nanoshiki/dsh-anki`, so an `@local/dsh-anki` install is a one-time new-package install; migrating from the older `@local/dsh-anki-workspace` identity is likewise one-time. Never enable two copies together, keep the data directory, and never point `dataDir` at an Anki desktop profile.
 
-**Sync:** credentials are entered only on the owner-only Sync page and stored with Windows current-user DPAPI, bound to the workspace path, with no plaintext fallback. Manual sync runs native collection sync and then native media sync. Automatic sync is on by default and is scheduled by the host. **Every full upload or download waits for explicit confirmation** with a mandatory overwrite warning; AI and automatic sync can never confirm a direction. Both full directions snapshot the local collection, media and media database first — **a local backup cannot restore overwritten cloud data**. Failed or cancelled sync can leave partially completed changes; cancellation is not rollback.
+**Sync:** credentials are entered only on the owner-only Sync page and stored with Windows current-user DPAPI or macOS Keychain, bound to the workspace path, with no plaintext fallback. Manual sync runs native collection sync and then native media sync. Automatic sync is on by default and is scheduled by the host. **Every full upload or download waits for explicit confirmation** with a mandatory overwrite warning; AI and automatic sync can never confirm a direction. Both full directions snapshot the local collection, media and media database first — **a local backup cannot restore overwritten cloud data**. Failed or cancelled sync can leave partially completed changes; cancellation is not rollback.
 
 **Note editing (2.1.0)** supports rich text, lists, inline pasted images and HTML source editing in both Add and Browse. Custom markup opens in source mode to preserve it.
 

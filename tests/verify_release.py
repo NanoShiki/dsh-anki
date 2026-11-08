@@ -29,7 +29,7 @@ with tarfile.open(archive, 'r:gz') as release:
         assert f'package/{name}' in files, f'missing: {name}'
     assert len(files['package/LICENSE']) > 30000
     manifest = json.loads(files['package/package.json'])
-    assert manifest['name'] == '@nanoshiki/dsh-anki' and manifest['version'] == '2.1.0'
+    assert manifest['name'] == '@nanoshiki/dsh-anki' and manifest['version'] == '2.2.0'
     assert manifest['repository']['url'] == 'git+https://github.com/NanoShiki/dsh-anki.git'
     assert b"id: '@nanoshiki/dsh-anki'," in files['package/client.js']
     assert b"name: '@nanoshiki/dsh-anki'" in files['package/cordis.patch.yml']
@@ -37,6 +37,14 @@ with tarfile.open(archive, 'r:gz') as release:
     assert b'dsh-anki-workspace' not in files['package/cordis.patch.yml']
     assert set(manifest['scripts']) == {'test:client', 'test:backend'}, 'unexpected lifecycle scripts'
     assert manifest['dsh']['bundle']['patch'] == './cordis.patch.yml'
+    mac = json.loads(files['package/macos/sha256.json'])
+    assert set(mac) == {'arm64', 'x64'}
+    for arch, parts in mac.items():
+        assert set(parts) == {'python', 'core'}
+        for part, expected_hash in parts.items():
+            assert hashlib.sha256(files[f'package/macos/{part}-{arch}.tar.gz']).hexdigest() == expected_hash
+    for name in ('macos/bundle.js', 'macos/sources.json', 'backend/keychain.py', 'scripts/setup_macos.py'):
+        assert 'package/' + name in files
     runtime = json.loads(files['package/runtime-sha256.json'])
     assert runtime['version'] == '3.13.5'
     expected = {f'package/runtime/{name}' for name in runtime['files']}
