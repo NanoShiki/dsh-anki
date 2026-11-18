@@ -56,7 +56,7 @@ function fixture({ snapshot = idle(), handler, visible = true, rootValues = [] }
     panelProps = flatten(tree).find((node) => node.type?.name === 'SyncPanel');
     return tree;
   }
-  root.values[4] ??= visible ? 'sync' : 'browse';
+  root.values[4] ??= visible ? 'overview' : 'browse';
   root.values[6] ??= false;
   renderRoot();
   return {
@@ -84,8 +84,8 @@ test('owner account RPC is distinct and discards raw credential-bearing errors',
 test('sync/login remains reachable without a loaded core collection', async () => {
   const f = fixture();
   const tree = f.renderRoot();
-  assert.equal(flatten(tree).filter((node) => node.props.role === 'tab').length, 5);
-  assert.ok(button(tree, 'Sync'));
+  assert.equal(flatten(tree).find(node => node.type === 'nav').children.length, 3);
+  assert.ok(button(tree, 'Open Sync'));
   f.renderPanel(); f.effects(); await flush();
   assert.ok(button(f.renderPanel(), 'Sign in'));
 });
@@ -246,7 +246,7 @@ for (const phase of ['error', 'cancelled', 'awaiting-full']) {
     await f.tick();
     assert.equal(f.root.values[18].Front, 'draft survives a partial sync');
     assert.equal(f.root.values[19], 'draft-tag');
-    assert.equal(f.root.values[30], true);
+    assert.equal(f.root.values[27], true);
     const reloads = f.calls.filter((call) => call.action === 'models.list').length;
     assert.equal(reloads, 1);
     await f.tick();

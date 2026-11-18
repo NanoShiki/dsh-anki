@@ -2,7 +2,7 @@
 
 独立的 DSH 插件：原生 Anki 侧栏与 `anki` AI 工具共用**仅属于当前 DSH 配置的一份独立牌库**，由真实的无界面 Anki 核心驱动。不启动 Anki 桌面窗口、AnkiConnect、Qt 或替代 Web 服务。本项目是独立集成，不是 Anki 官方产品。
 
-**2.0.0 开箱即用**：安装包包含 CPython、Anki 26.05 无界面核心及其全部 Python 运行依赖，安装后无需另外安装 Anki、Python 或 pip，也无需填写核心路径。沿用浅色卡片、青绿色强调色、顶部六格统计，以及「牌组 — 搜索列表 — 编辑器」布局；窄窗口自动适配，各区域内部滚动。
+**2.0.0 开箱即用**：安装包包含 CPython、Anki 26.05 无界面核心及其全部 Python 运行依赖，安装后无需另外安装 Anki、Python 或 pip，也无需填写核心路径。工作区通过「概览、牌组、浏览」顶栏导航，右上角可制卡、更改主题色、切换日夜模式和中英文。概览按 Anki 的学习日统计作答次数，以热力图、近 14 天柱状图展示学习记录。AnkiWeb 同步入口位于学习足迹下方。未来七天的到期量包含复习卡与跨日学习卡，逾期卡归入今天。
 
 ## 安装与升级
 
@@ -95,6 +95,8 @@ AI 的读取操作（含 `sync.status`）在只读模式下即可工作。**修�
 插件本身：[AGPL-3.0-or-later](<LICENSE>)。另见 [Anki 上游声明](<ANKI-LICENSE.txt>)、[第三方声明](<THIRD-PARTY-NOTICES.md>) 与 [Python 许可](<runtime/LICENSE.txt>)。子进程边界并不免除许可义务。
 
 ## English
+
+Version 2.3.0 adds the activity dashboard, deck management, animated review progress and appearance settings. AnkiWeb synchronization is available beneath the activity heatmap.
 
 A native DSH sidebar and an `anki` AI tool sharing **one independent, per-DSH-profile collection**, powered by real headless Anki — no Anki desktop window, AnkiConnect, Qt or replacement web server is started. Independent integration, not an official Anki product. Version 2.0.0 bundles the headless core and its Python dependencies for out-of-the-box installation, retaining the native responsive layout.
 

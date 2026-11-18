@@ -47,10 +47,19 @@ function fixture({ models = [stock(10, 'Basic')], decks = defaultDecks, handler,
     render() { stateIndex = 0; refIndex = 0; effectIndex = 0; queued = []; return main.component(props); },
     commit() { const next = queued.splice(0); for (const callback of next) callback(); },
     async mount() { f.render(); f.commit(); await flush(); f.render(); f.commit(); await flush(); return f.render(); },
-    button(label, tree = f.render()) { return flatten(tree).find((node) => node.type === 'button' && node.children.includes(label)); },
+    button(label, tree = f.render()) {
+      if (label === 'Delete deck…') {
+        const deck = values[1].find(d => String(d.id) === values[3]);
+        return flatten(tree).find(node => node.props['aria-label'] === label+' '+deck?.name);
+      }
+      return flatten(tree).find(node => node.type === 'button' && node.children.includes(label));
+    },
     panel(tree = f.render()) { return flatten(tree).find((node) => node.props.className?.split(' ').includes('dsh-anki-delete')); },
     async open() { f.manage(); await flush(); f.button('Delete deck…').props.onClick(); await flush(); return f.panel(); },
-    manage() { const toggle = flatten(f.render()).find((node) => node.type === 'button' && node.props['aria-label'] === 'Manage decks'); if (toggle.props['aria-expanded'] !== 'true') toggle.props.onClick(); return f.render(); },
+    manage() {
+      f.button('Decks').props.onClick();
+      return f.render();
+    },
     name(value) { const input = flatten(f.panel()).find((node) => node.type === 'input'); input.props.onChange({ target: { value } }); },
     form() { return flatten(f.panel()).find((node) => node.type === 'form'); },
     sync(snapshot) { const panel = flatten(f.render()).find((node) => node.type?.name === 'SyncPanel'); panel.props.onStatus(snapshot); },
@@ -79,10 +88,10 @@ test('explicit manual model choice survives refresh and missing choices fall bac
   await f.mount(); assert.equal(f.values[20], '20');
   f.values[4] = 'add';
   const modelField = flatten(f.render()).find((node) => node.type?.name === 'Field' && node.props.label === 'Note type');
-  flatten(modelField).find((node) => node.type === 'select').props.onChange({ target: { value: '10' } });
-  f.button('Refresh').props.onClick(); await flush(); assert.equal(f.values[20], '10');
+  flatten(modelField).find((node) => node.type?.name === 'Choice').props.onChange({ target: { value: '10' } });
+  flatten(f.render()).find(n=>n.type?.name==='SyncPanel').props.onSettled(); await flush(); assert.equal(f.values[20], '10');
   f.setModels([stock(30, '问答题（输入答案）')]);
-  f.button('Refresh').props.onClick(); await flush(); assert.equal(f.values[20], '30');
+  flatten(f.render()).find(n=>n.type?.name==='SyncPanel').props.onSettled(); await flush(); assert.equal(f.values[20], '30');
 });
 
 test('Default ID 1 cannot request deletion and its protection is explained', async () => {
@@ -142,7 +151,7 @@ test('a queued deck-selection event invalidates a late preview for the old selec
   let resolve;
   const f = fixture({ handler: ({ action }) => action === 'previewDelete' ? new Promise((done) => { resolve = done; }) : undefined });
   await f.mount(); f.manage(); const before = f.render();
-  const other = flatten(before).find((node) => node.props.className === 'dsh-anki-deck' && node.props.title?.startsWith('Other ·'));
+  const other = flatten(before).find((node) => node.props.title === 'Other');
   f.button('Delete deck…', before).props.onClick(); other.props.onClick();
   assert.equal(f.values[3], '3');
   resolve({ ok: true, value: preview() }); await flush(); assert.equal(f.panel(), undefined);
@@ -150,7 +159,7 @@ test('a queued deck-selection event invalidates a late preview for the old selec
 
 test('refresh consumes ready authorization and prevents stale form resubmission', async () => {
   const f = fixture(); await f.mount(); await f.open(); f.name('Languages::Japanese');
-  const staleForm = f.form(); f.button('Refresh').props.onClick(); await flush();
+  const staleForm = f.form(); flatten(f.render()).find(n=>n.type?.name==='SyncPanel').props.onSettled(); await flush();
   assert.equal(f.panel(), undefined); staleForm.props.onSubmit(event); await flush();
   assert.equal(f.ownerCalls().length, 1);
 });

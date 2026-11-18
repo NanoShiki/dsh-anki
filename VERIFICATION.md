@@ -1,3 +1,7 @@
+## 2.3.0 workspace verification
+
+The client suite covers deck operations and explicit full-sync decisions. Native-core tests check that answering and undoing a review updates the learning activity shown on the dashboard.
+
 # macOS support — 2.2.0 test build
 
 GitHub Actions on macOS 15 (Apple Silicon and Intel) exercised the packaged plugin from a separate directory, imported 13 modules from the bundled core, and used a temporary collection to add, find, review and export notes. Both architectures passed the 84 client tests and 40 backend tests, including Keychain storage and native loopback collection/media sync. Windows CI also passed. These checks exercise the plugin backend and transport; DSH desktop UI installation and a real AnkiWeb account remain manual acceptance steps.
