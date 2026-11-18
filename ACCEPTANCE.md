@@ -1,3 +1,7 @@
+## 2.3.0 工作区验收
+
+从概览进入复习，再切换牌组、浏览或制卡。检查学习日统计、评分与撤销后的进度，以及热力图下方的 AnkiWeb 同步入口。
+
 # Installation and live acceptance checklist
 
 Automated checks use isolated temporary collections and localhost test services. They do not establish that a particular live installation, AnkiWeb account or cloud connection works. See [verification](<VERIFICATION.md>) for the tested scope. Do not publish collection contents, credentials or account-bearing screenshots when reporting a problem.

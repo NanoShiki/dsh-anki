@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+from datetime import datetime, timedelta
 import hashlib
 import html
 import json
@@ -99,7 +100,7 @@ PARAMS = {
     "status": set(), "decks.list": set(), "decks.create": {"name"},
     "decks.rename": {"deckId", "name"}, "models.list": set(),
     "decks.delete.preview": {"deckId"}, "decks.delete": {"token", "confirmName"},
-    "notes.search": {"query", "offset", "limit"}, "notes.get": {"noteId"},
+    "notes.search": {"query", "offset", "limit", "sort"}, "notes.get": {"noteId"},
     "notes.add": {"deckId", "modelId", "fields", "tags"},
     "notes.update": {"noteId", "fields", "tags", "expectedModified"},
     "cards.suspend": {"cardIds", "suspend"}, "review.next": {"deckId"},
@@ -395,12 +396,41 @@ class Worker:
         return {"available": can_review, "name": status.undo, "redo": status.redo,
                 "lastStep": status.last_step}
 
+    def study_activity(self):
+        # Group answers by Anki's study day, including the configurable rollover.
+        cutoff = datetime.fromtimestamp(self.col.sched.day_cutoff)
+        today = cutoff.date() - timedelta(days=1)
+        rollover = cutoff.hour * 3600 + cutoff.minute * 60 + cutoff.second
+        first_visible = (today - timedelta(days=370)).isoformat()
+        rows = self.col.db.all(
+            "select date(id / 1000, 'unixepoch','localtime', ?), count(*), "
+            "sum(type=0), sum(ease>1) from revlog "
+            "where ease between 1 and 4 group by 1",
+            f"-{rollover} seconds")
+        active_days = {row[0] for row in rows}
+        cursor = today if today.isoformat() in active_days else today - timedelta(days=1)
+        streak = 0
+        while cursor.isoformat() in active_days:
+            streak += 1
+            cursor -= timedelta(days=1)
+        day_start = int((cutoff - timedelta(days=1)).timestamp() * 1000)
+        by_deck = dict(self.col.db.all(
+            "select c.did,count(*) from revlog r join cards c on c.id=r.cid "
+            "where r.id>=? and r.ease between 1 and 4 group by c.did", day_start))
+        due = [0] * 7
+        for offset, total in self.col.db.all(
+                "select max(0,due-?),count(*) from cards where queue in (2,3) "
+                "and due<=? group by 1", self.col.sched.today, self.col.sched.today + 6):
+            due[offset] = total
+        return {"today": today.isoformat(), "days": [row for row in rows if row[0] >= first_visible],
+                "streak": streak, "byDeck": by_deck, "due": due}
+
     def status(self, p):
         import anki.buildinfo
         return {"version": anki.buildinfo.version, "collectionPath": self.col.path,
                 "noteCount": self.col.note_count(), "cardCount": self.col.card_count(),
                 "decks": self.decks_list({}), "undo": self.undo_info(),
-                "pid": os.getpid(), "schedulerVersion": 3, "language": self.language,
+                "activity": self.study_activity(), "pid": os.getpid(), "schedulerVersion": 3, "language": self.language,
                 "selectedDeckId": self.col.decks.selected(),
                 "reviewScope": "selected-deck-and-descendants",
                 "mediaPath": str(self.root / "collection.media"),
@@ -513,7 +543,11 @@ class Worker:
         query = text(p.get("query", ""), "query", 10000, empty=True)
         offset = integer(p.get("offset", 0), "offset", 0)
         limit = integer(p.get("limit", 50), "limit", 1, 200)
-        ids = sorted(self.col.find_notes(query), reverse=True)
+        sort = p.get("sort", "created")
+        if sort not in ("created", "modified"):
+            invalid("Unknown note sort order")
+        order = "n.mod desc, n.id desc" if sort == "modified" else "n.id desc"
+        ids = self.col.find_notes(query, order=order)
         return {"items": [self.serialize_note(self.col.get_note(nid))
                           for nid in ids[offset:offset + limit]],
                 "total": len(ids), "offset": offset, "limit": limit}
