@@ -15,10 +15,10 @@ Automated checks use isolated temporary collections and localhost test services.
 
 ## AnkiWeb authentication and synchronization
 
-1. Open Anki → 同步 and verify the login form and auto-sync checkbox.
+1. Open the AnkiWeb sync panel beneath the Overview heatmap and verify the login form and auto-sync checkbox.
 2. Enter credentials privately on that page, never in chat. Check for login/progress or a safe failure message.
 3. If full synchronization is requested, verify the account and choose the intended permitted direction. For an empty local collection that should receive an existing cloud collection, choose **download from AnkiWeb**. Upload replaces the cloud collection; do not choose it unless that replacement is intended. The overwrite-warning checkbox is mandatory.
-4. Wait for both collection and media completion. Check decks and a representative media card. Perform only an intentional edit/review and verify automatic sync if enabled.
+4. Wait for both collection and media completion. Check decks and a representative media card. With auto-sync enabled, edit a test note in Browse across a sync interval and verify that it can still be saved. Return to the focused Overview and verify that the pending changes sync.
 5. Logout and confirm that the page returns to signed-out state. Do not include credentials or authentication state in screenshots.
 
 ## Version 1.2.0: default type and deck deletion

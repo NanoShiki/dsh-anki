@@ -154,7 +154,7 @@
   "syncBusyError": "A synchronization job is using the collection. Wait for it to finish or cancel it.",
   "syncConfirmError": "The full-sync confirmation expired or changed. Select the direction again.",
   "syncAuto": "Automatic sync",
-  "syncAutoHint": "The Host manages automatic synchronization, even when this panel is closed. This page only checks progress; it does not schedule sync jobs.",
+  "syncAutoHint": "Automatic sync runs while Overview is open and focused.",
   "syncNow": "Sync now",
   "syncCancel": "Cancel sync",
   "syncLast": "Last successful sync",

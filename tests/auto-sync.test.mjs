@@ -168,3 +168,16 @@ test('login/settings wake a future check without performing a full sync', async 
   f.auto.accountChanged('login'); f.advance(1000); await f.auto.tick();
   assert.deepEqual(actions(f), ['sync.status', 'sync.run']);
 });
+
+test('leaving the overview invalidates a sync waiting for worker dispatch', async () => {
+  const f = fixture();
+  let guard;
+  f.auto.call = async (action, params, options) => {
+    if (action === 'sync.run') guard = options.canDispatch;
+    return f.status;
+  };
+  await f.auto.tick();
+  assert.equal(guard(),true);
+  f.auto.leaveOverview();
+  assert.equal(guard(),false);
+});

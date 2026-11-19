@@ -1,3 +1,7 @@
+## Overview-only automatic sync
+
+All 87 client and scheduler tests passed locally. The suite covers overview eligibility and invalidation of a pending check on navigation.
+
 ## 2.3.0 workspace verification
 
 The client suite covers deck operations and explicit full-sync decisions. Native-core tests check that answering and undoing a review updates the learning activity shown on the dashboard.

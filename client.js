@@ -92,7 +92,7 @@ window.__ModuleLoader__.load({
       syncFailed: 'Synchronization could not finish. Check your connection and account, then retry.',
       syncAuthError: 'Sign in again to continue synchronization.', syncBusyError: 'A synchronization job is using the collection. Wait for it to finish or cancel it.',
       syncConfirmError: 'The full-sync confirmation expired or changed. Select the direction again.',
-      syncAuto: 'Automatic sync', syncAutoHint: 'The Host manages automatic synchronization, even when this panel is closed. This page only checks progress; it does not schedule sync jobs.',
+      syncAuto: 'Automatic sync', syncAutoHint: 'Automatic sync runs while Overview is open and focused.',
       syncNow: 'Sync now', syncCancel: 'Cancel sync', syncLast: 'Last successful sync', syncNever: 'Not yet', syncProgress: 'Progress', syncMedia: 'Media',
       syncTransferred: 'Transferred', syncChecked: 'Checked', syncAdded: 'Added', syncRemoved: 'Removed',
       syncIdle: 'Ready', syncLoggingIn: 'Signing in…', syncSyncing: 'Synchronizing collection…', syncMediaPhase: 'Synchronizing media…',
@@ -184,7 +184,7 @@ window.__ModuleLoader__.load({
       syncCredentialsHint: '请仅在此输入凭据，不要发送到聊天。提交后密码会被清空，且不会保存在浏览器存储中。',
       syncLoginFailed: '无法登录，请检查凭据、网络连接及安全凭据存储后重试。', syncFailed: '同步未能完成，请检查网络和账户后重试。',
       syncAuthError: '请重新登录后继续同步。', syncBusyError: '同步任务正在使用收藏，请等待完成或取消同步。', syncConfirmError: '全量同步确认已过期或发生变化，请重新选择。',
-      syncAuto: '自动同步', syncAutoHint: 'Host 负责自动同步，即使关闭此面板也会继续运行。此页面仅查询进度，不安排同步任务。',
+      syncAuto: '自动同步', syncAutoHint: '停留在概览并聚焦窗口时才会自动同步。',
       syncNow: '立即同步', syncCancel: '取消同步', syncLast: '上次成功同步', syncNever: '尚无', syncProgress: '进度', syncMedia: '媒体',
       syncTransferred: '已传输', syncChecked: '已检查', syncAdded: '已添加', syncRemoved: '已移除',
       syncIdle: '就绪', syncLoggingIn: '正在登录…', syncSyncing: '正在同步收藏…', syncMediaPhase: '正在同步媒体…',
@@ -787,7 +787,7 @@ main[data-page=decks]>.anki-scroll{flex:1;min-height:0;max-height:none}
       return t(known[String(code || '').replace(/^anki\//, '')] || (login ? 'syncLoginFailed' : 'syncFailed'));
     }
 
-    function SyncPanel({ t, api, account, visible, onStatus, onSettled, quickSync, open, close }) {
+    function SyncPanel({ t, api, account, visible, onStatus, onSettled, onPoll, quickSync, open, close }) {
       const [snapshot, setSnapshot] = React.useState(null);
       const [username, setUsername] = React.useState('');
       const [password, setPassword] = React.useState('');
@@ -799,8 +799,8 @@ main[data-page=decks]>.anki-scroll{flex:1;min-height:0;max-height:none}
       const actionLock = React.useRef(false);
       const generation = React.useRef(0);
       const latest = React.useRef(null);
-      const callbacks = React.useRef({ onStatus, onSettled });
-      callbacks.current = { onStatus, onSettled };
+      const callbacks = React.useRef({ onStatus, onSettled, onPoll });
+      callbacks.current = { onStatus, onSettled, onPoll };
       function publish(next) {
         if (!alive.current) return;
         if (!next || typeof next.loggedIn !== 'boolean' || typeof next.active !== 'boolean' || typeof next.phase !== 'string') throw new Error();
@@ -823,11 +823,11 @@ main[data-page=decks]>.anki-scroll{flex:1;min-height:0;max-height:none}
           try {
             if (!actionLock.current) {
               const next = await api('sync.status', {});
-              if (!stopped && version === generation.current) { publish(next); setPollError(''); }
+              if (!stopped && version === generation.current) { publish(next); setPollError(''); callbacks.current.onPoll?.(next); }
             }
           } catch (_) { if (!stopped && version === generation.current) setPollError(t('syncFailed')); }
           finally {
-            // Status polling only. Automatic sync jobs are scheduled exclusively by the Host.
+            // The overview can ask the host to evaluate its sync schedule after a status poll.
             if (!stopped) timer = setTimeout(poll, visible || latest.current?.active ? 1000 : 10000);
           }
         }
@@ -1140,6 +1140,43 @@ main[data-page=decks]>.anki-scroll{flex:1;min-height:0;max-height:none}
       const submit = (label, disabled = false) => h('button', { type: 'submit', className: 'dsh-anki-primary', disabled: busy || disabled }, label);
       const dirty = !!note && (JSON.stringify(editFields) !== JSON.stringify(note.fields || {}) || editTags !== tagsText(note.tags));
       const notificationId = React.useRef(0);
+      const workspaceElement = React.useRef(null);
+      const currentNote = React.useRef(note);
+      currentNote.current = note;
+      const eligible = tab === 'overview' && !dirty && !initializing && !busy && !syncOpen;
+      React.useEffect(() => {
+        if (!eligible) return;
+        const leave = () => { account('leaveOverview', {}).catch(()=>{}); };
+        const doc = workspaceElement.current?.ownerDocument;
+        const visibility = () => { if (doc.hidden) leave(); };
+        doc?.addEventListener('visibilitychange', visibility);
+        doc?.defaultView?.addEventListener('blur', leave);
+        return () => {
+          doc?.removeEventListener('visibilitychange', visibility);
+          doc?.defaultView?.removeEventListener('blur', leave);
+          leave();
+        };
+      }, [eligible, account]);
+      function checkOverviewSync(next) {
+        const el = workspaceElement.current;
+        if (eligible && next.loggedIn && next.settings?.autoSync && !next.active && !next.pendingFull &&
+            el?.getClientRects().length && !el.ownerDocument.hidden && el.ownerDocument.hasFocus()) {
+          account('overviewTick', {}).catch(()=>{});
+        }
+      }
+      const syncRevision = React.useRef(0);
+      function syncSettled() {
+        const revision = ++syncRevision.current;
+        const original = note;
+        setNoteStale(!!original);
+        if (original) {
+          api('notes.get', {noteId:original.id}).then(latest=>{
+            if (alive.current && revision === syncRevision.current && currentNote.current === original && Number.isFinite(latest.modified) &&
+                latest.modified === original.modified) setNoteStale(false);
+          }).catch(()=>{}); // A deleted or unreadable note must remain protected.
+        }
+        reload().catch(()=>{ if (alive.current) setError(t('syncFailed')); });
+      }
       const notify = key => setNotice({text:t(key), id:++notificationId.current});
       const deckOptions = decks.map((deck) => h('option', { key: String(deck.id), value: String(deck.id) }, deck.name));
       const creating = deckControls === 'create' && tab === 'decks';
@@ -1338,7 +1375,7 @@ main[data-page=decks]>.anki-scroll{flex:1;min-height:0;max-height:none}
       const decksPage = tab==='decks' && h(React.Fragment,null,deckForms,deckTable(false));
       const scope = h('div',{className:'anki-row'},h('div',{className:'anki-scope-label'},t('deck'),' ',h(Choice,{'aria-label':t('deck'),value:deckId,disabled:busy,onChange:e=>chooseDeck(e.target.value)},!deckId || tab==='browse' ? h('option',{value:''},tab==='review'?t('chooseDeck'):t('allDecks')) : null,deckOptions)),tab==='browse' && noteSearch);
       const titles = {overview:'todayOverview',decks:'decks',browse:'browse',add:'add',review:'review'};
-      return h('div',{className:'dsh-anki','data-mode':prefs.mode || 'light',lang:language,style:{'--accent':accent,'--on-accent':'#fff'}},h('style',null,CSS),h('div',{className:'dsh-anki-wrap'},
+      return h('div',{ref:workspaceElement,className:'dsh-anki','data-mode':prefs.mode || 'light',lang:language,style:{'--accent':accent,'--on-accent':'#fff'}},h('style',null,CSS),h('div',{className:'dsh-anki-wrap'},
         h('header',{className:'anki-top'},h('strong',{className:'anki-brand'},'DSH Anki'),
           h('nav',{className:'anki-pages','aria-label':t('title')},...['overview','decks','browse'].map(id=>button(t(id),()=>changeTab(id),{key:id,disabled:working,'aria-current':tab===id?'page':undefined}))),
           h('div',{className:'anki-tools'},button('＋ '+t('quickAdd'),()=>changeTab('add'),{className:'dsh-anki-primary'}),
@@ -1355,7 +1392,7 @@ main[data-page=decks]>.anki-scroll{flex:1;min-height:0;max-height:none}
             tab==='overview'?overview:tab==='decks'?decksPage:tab==='add'?add:tab==='browse'?h(React.Fragment,null,scope,browse):review),
               h(SyncPanel, { t, api, account, quickSync, open:()=>setSyncOpen(true), close:()=>setSyncOpen(false), visible: syncOpen,
                 onStatus: (next) => { setSyncState(next); if (next.active || next.pendingFull) { deleteSafety.current.blocked = true; deleteSafety.current.syncBlocked = true; clearDelete(); setCard(undefined); setRevealed(null); } },
-                onSettled: () => { setNoteStale(true); setCard(undefined); setRevealed(null); reload().catch(() => { if (alive.current) setError(t('syncFailed')); }); }
+                onPoll:checkOverviewSync, onSettled:syncSettled
               }))));
     }
     return {

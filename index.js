@@ -41,7 +41,6 @@ class AnkiWorkspace extends TypertRemoteService {
     });
     this.autoSync = new AnkiAutoSync({ call: (action, params, options) => this.worker.call(action, params, options) });
     ctx.effect(() => {
-      this.autoSync.start();
       return async () => { this.autoSync.close(); await this.worker.close(); };
     });
     ctx.tools.register(defineTool({
@@ -106,6 +105,11 @@ class AnkiWorkspace extends TypertRemoteService {
   async account(action, params) {
     const principal = this.ctx.invocation?.peer?.principal;
     if (principal?.kind !== 'owner') throw new RemoteError('anki/OWNER_REQUIRED', 'Only the DSH owner may manage AnkiWeb authentication and full synchronization.');
+    if (action === 'overviewTick' || action === 'leaveOverview') {
+      if (action === 'leaveOverview') this.autoSync.leaveOverview();
+      else await this.autoSync.tick();
+      return {};
+    }
     if (typeof action !== 'string' || !Object.hasOwn(ACCOUNT_ACTIONS, action)) throw new RemoteError('anki/VALIDATION_ERROR', 'Unknown account action.');
     if (!params || typeof params !== 'object' || Array.isArray(params) || Buffer.byteLength(JSON.stringify(params), 'utf8') > 32 * 1024) throw new RemoteError('anki/VALIDATION_ERROR', 'Invalid account request.');
     this.autoSync.beginAccount();
