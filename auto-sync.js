@@ -16,16 +16,12 @@ export class AnkiAutoSync {
     this.accountBusy = 0;
     this.operationBusy = 0;
     this.closed = false;
-    this.timer = null;
   }
 
-  start() {
-    if (this.closed || this.timer) return;
-    this.timer = setInterval(() => { void this.tick(); }, this.pollMs);
-    this.timer.unref?.();
-  }
+  close() { this.closed = true; }
 
-  close() { this.closed = true; clearInterval(this.timer); this.timer = null; }
+  // Invalidate checks already awaiting status or waiting in the worker queue.
+  leaveOverview() { this.epoch++; }
 
   beginOperation(action) {
     if (action !== 'review.next' && action !== 'decks.delete.preview' && !MUTATIONS.has(action) && action !== 'sync.run' && action !== 'sync.cancel') return () => {};

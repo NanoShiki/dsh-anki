@@ -154,7 +154,7 @@
   "syncBusyError": "同步任务正在使用收藏，请等待完成或取消同步。",
   "syncConfirmError": "全量同步确认已过期或发生变化，请重新选择。",
   "syncAuto": "自动同步",
-  "syncAutoHint": "Host 负责自动同步，即使关闭此面板也会继续运行。此页面仅查询进度，不安排同步任务。",
+  "syncAutoHint": "停留在概览并聚焦窗口时才会自动同步。",
   "syncNow": "立即同步",
   "syncCancel": "取消同步",
   "syncLast": "上次成功同步",

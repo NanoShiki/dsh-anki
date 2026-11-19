@@ -98,3 +98,10 @@
 !/macos/*.tar.gz
 !/macos/*.json
 !/scripts/setup_macos.py
+
+# Public README illustration captured with synthetic study data.
+!/docs/
+/docs/*
+!/docs/images/
+/docs/images/*
+!/docs/images/overview.png

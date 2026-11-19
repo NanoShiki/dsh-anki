@@ -266,3 +266,39 @@ test('leaving review releases only the transient token through owner RPC', async
   assert.deepEqual(JSON.parse(JSON.stringify(releases[0].params)), {});
   assert.equal(f.calls.some((call) => call.action === 'review.answer'), false);
 });
+
+test('only the focused overview without an editor draft requests scheduled sync', async () => {
+  const f = fixture();
+  const el = { getClientRects:()=>[{}], ownerDocument:{hidden:false,hasFocus:()=>true} };
+  function check(page) {
+    f.root.values[4] = page;
+    const tree = f.renderRoot();
+    tree.props.ref.current = el;
+    flatten(tree).find(node=>node.type?.name==='SyncPanel').props.onPoll(idle({loggedIn:true}));
+  }
+  for (const page of ['browse','decks','add','review']) check(page);
+  assert.equal(f.calls.length,0);
+  check('overview');
+  assert.deepEqual(f.calls.map(call=>call.action),['overviewTick']);
+  el.ownerDocument.hidden = true;
+  check('overview');
+  el.ownerDocument.hidden = false;
+  f.root.values[17] = {fields:{Front:'before'},tags:[]};
+  f.root.values[18] = {Front:'editing'};
+  check('overview');
+  assert.equal(f.calls.length,1);
+});
+
+test('an unchanged note stays editable with its draft intact after sync', async () => {
+  const values = [];
+  values[4] = 'browse';
+  values[0] = { noteCount:1 };
+  const note = {id:123,modified:111,fields:{Front:'before'},tags:[],cards:[]};
+  values[17] = note;
+  values[18] = {Front:'draft'};
+  const f = fixture({rootValues:values,handler:({action})=>action==='notes.get'?{ok:true,value:note}:undefined});
+  flatten(f.renderRoot()).find(node=>node.type?.name==='SyncPanel').props.onSettled();
+  await flush();
+  assert.equal(button(f.renderRoot(),'Save changes').props.disabled,false);
+  assert.equal(values[18].Front,'draft');
+});

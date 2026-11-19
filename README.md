@@ -1,121 +1,107 @@
-# dsh-anki / DSH Anki 工作区
+<div align="center">
+  <img src="./icon.svg" width="72" alt="">
+  <h1>DSH Anki</h1>
+  <p>在 DeepSeek Harness 里制卡、复习，也能让 AI 帮你整理同一份牌库。</p>
+  <p>
+    <a href="https://github.com/NanoShiki/dsh-anki/releases/latest"><img src="https://img.shields.io/github/v/release/NanoShiki/dsh-anki?label=GitHub%20Release" alt="GitHub 最新版本"></a>
+    <a href="https://www.npmjs.com/package/@nanoshiki/dsh-anki"><img src="https://img.shields.io/npm/v/%40nanoshiki%2Fdsh-anki?label=npm" alt="npm 当前版本"></a>
+    <a href="https://github.com/NanoShiki/dsh-anki/actions/workflows/test.yml"><img src="https://github.com/NanoShiki/dsh-anki/actions/workflows/test.yml/badge.svg" alt="测试状态"></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0--or--later-356548" alt="AGPL-3.0-or-later"></a>
+  </p>
+  <p><a href="#快速开始">快速开始</a> · <a href="#在对话中使用">在对话中使用</a> · <a href="https://github.com/NanoShiki/dsh-anki/releases">版本记录</a> · <a href="#english">English</a></p>
+</div>
 
-独立的 DSH 插件：原生 Anki 侧栏与 `anki` AI 工具共用**仅属于当前 DSH 配置的一份独立牌库**，由真实的无界面 Anki 核心驱动。不启动 Anki 桌面窗口、AnkiConnect、Qt 或替代 Web 服务。本项目是独立集成，不是 Anki 官方产品。
+![DSH Anki 概览：今日复习进度、学习热力图、近两周复习量、牌组与到期预测（演示数据）](docs/images/overview.png)
 
-**2.0.0 开箱即用**：安装包包含 CPython、Anki 26.05 无界面核心及其全部 Python 运行依赖，安装后无需另外安装 Anki、Python 或 pip，也无需填写核心路径。工作区通过「概览、牌组、浏览」顶栏导航，右上角可制卡、更改主题色、切换日夜模式和中英文。概览按 Anki 的学习日统计作答次数，以热力图、近 14 天柱状图展示学习记录。AnkiWeb 同步入口位于学习足迹下方。未来七天的到期量包含复习卡与跨日学习卡，逾期卡归入今天。
+DSH Anki 是独立开发的 DSH 插件。每个 DSH 配置都有自己的牌库，侧栏工作区和对话中的 `anki` 工具读写同一份数据。安装包内置 Anki 26.05 核心与 CPython 3.13.5，安装后即可离线制卡和复习。
 
-## 安装与升级
+## 快速开始
 
-**环境要求：** Windows x64 或 macOS 12 及以上（Apple Silicon、Intel），DSH `^0.2.1-rc.2`（已在 **0.2.1-rc.3** 验证；`@deepseek-ai/dsh*` peer 声明为范围而不是精确版本）。随包提供 CPython 3.13.5、官方 PyPI Anki **26.5 / 26.05** 原生 wheel 及其依赖；不包含 Qt 或 Anki 桌面界面。**不要求已有 Anki/Python 安装，不在首次启动时下载运行依赖。** AnkiWeb 同步仍需网络和自己的账号。
+1. **安装插件。** 在 DSH 插件管理器中添加包名 `@nanoshiki/dsh-anki`，或下载预构建的 [dsh-anki.tgz](https://github.com/NanoShiki/dsh-anki/releases/latest/download/dsh-anki.tgz) 并在管理器中导入。GitHub 和 npm 的可用版本见页首徽章。
+2. **启用 Anki。** 首次安装时将 `dataDir`、`pythonPath`、`ankiPackages` 留空，即可使用当前配置的私有牌库和内置运行时。按管理器提示刷新或重启，从 DSH 侧栏打开 **Anki**。
+3. **试着做一张卡。** 在「牌组」中新建一个牌组，点右上角「＋ 制卡」，选好牌组和笔记类型，填入正反面并保存。回到概览，点击该牌组旁的「开始复习」。
 
-macOS 测试包与 Windows 共用一个 `.tgz`。在 DSH 插件管理器中导入，保持 `pythonPath` 和 `ankiPackages` 为空。第一次使用时会把适合当前 DSH 进程架构的运行时解压到 `~/Library/Caches/dsh-anki/`。系统清理缓存后，下次使用会从安装包重建。同步登录如遇钥匙串提示，允许访问此工作区的同步凭据。
+| 环境 | 支持范围 |
+| --- | --- |
+| 桌面系统 | Windows x64，macOS 12 及以上（Apple Silicon / Intel） |
+| DSH | `^0.2.1-rc.2`，已在 `0.2.1-rc.3` 验证 |
+| AnkiWeb | 可选，跨设备同步时需要联网并登录自己的账号 |
 
-### 首次安装（公开 Release 安装包）
+## 工作区一览
 
-1. 从 [latest Release](https://github.com/NanoShiki/dsh-anki/releases/latest) 下载 `dsh-anki.tgz`（每个 Release 都附带这个固定文件名，`releases/latest/download/dsh-anki.tgz` 永远指向最新正式版），不要用 GitHub 自动生成的 Source code 压缩包代替安装包。
-2. 更简单的方式：在插件管理器中直接添加包名 `@nanoshiki/dsh-anki`（npm 发布后市场可检测更新）；或导入上一步的 `.tgz`。两种方式都保持 `pythonPath`、`ankiPackages` 为空，即自动使用包内运行时与核心。
-3. 启用插件并按管理器提示刷新/重启，打开「Anki → 浏览」。`dataDir` 留空即使用当前 DSH 配置的独立数据目录；不要指向 Anki 桌面版牌库。
+| 入口 | 可以做什么 |
+| --- | --- |
+| **概览** | 查看今日进度、连续打卡、全年学习热力图和近 14 天复习量。未来七天到期预测将逾期卡计入今天。 |
+| **牌组与复习** | 新建、重命名牌组，按牌组及其子牌组复习。翻面后选择重来、困难、良好或简单，由 Anki 排程下次复习。支持撤销最近一次可撤销的评分。 |
+| **制卡与浏览** | 使用原生笔记类型和 Anki 搜索语法，编辑字段、标签，暂停或恢复卡片。富文本编辑器支持列表、上下标、HTML 源码和粘贴图片（单张最多 5 MiB）。 |
+| **同步** | 从概览的学习热力图下方打开 AnkiWeb 同步面板，登录账号、查看进度、立即同步或调整自动同步。 |
+| **外观** | 顶栏可选择预设主题色、切换浅色或深色模式以及中英文界面。 |
 
-插件管理器里的显示名称是 **Anki**（来自包内 `locale/*.json` 的 `meta.title`）；技术包名是 `@nanoshiki/dsh-anki`（2.0.0 起；1.4.x 及更早为 `@local/dsh-anki`），只在详情页用于排查安装位置。
+## 在对话中使用
 
-**2.1.0 富文本编辑**：新增和浏览页都支持选中文字后加粗、斜体、下划线、上下标和列表，也可点 `</>` 编辑 HTML 源码。粘贴截图（PNG/JPEG/GIF/WebP，最大 5 MiB）会在光标处显示图片。字段保存媒体文件名，相同图片复用同一个文件。含有可视化编辑器无法完整保留的自定义 HTML 的字段会以源码模式打开。
+打开 DSH 对话后，可以直接描述想对牌库做的事。例如：
 
+> 在「英语」牌组中查找带有 travel 标签的笔记，列出它们的正面。
+>
+> 把“什么是间隔重复？”和“按记忆情况逐渐拉长复习间隔”做成一张问答卡，保存到「学习方法」牌组。
 
-`pythonPath` / `ankiPackages` 仅保留为高级用户的绝对路径覆盖项，不再使用作者机器上的路径，也不会静默回退到外部安装。完整包损坏或缺文件时，请重新安装完整 `.tgz`，不是另装 Python/Anki。
+查询牌组、笔记和同步状态可在只读模式下进行。写入、导出、取下一张复习卡（`review.next`）、启动或取消同步需要 `danger-full-access`，因为牌库位于对话工作区之外。删除牌组、管理账号、修改同步设置和确认全量同步方向由已认证的所有者在界面中操作。
 
-2.0.1 起同时发布到 npm，包名 `@nanoshiki/dsh-anki`。插件管理器可直接安装这个包名，插件市场会按 npm 版本检测更新并给出「更新」按钮；GitHub Release 的 `dsh-anki.tgz` 仍作为预构建备用安装方式，两者数据目录相同。
+## 同步与数据
 
-安装包校验值随 Release 提供；核心逐文件校验值见 [core-sha256.json](<core-sha256.json>)，官方 wheel 下载地址、版本与 SHA-256 见 [core-lock.json](<core-lock.json>)。
+「立即同步」先同步牌库，再同步媒体，两者都成功才会更新上次成功时间。自动同步默认开启，写入后至少等待 15 秒空闲，常规检查周期约 5 分钟。**当前开发版**进一步限定为仅在概览可见、窗口有焦点且没有未保存的笔记编辑时触发。
 
-**始终最新（稳定链接）：** 每个 Release 都附带同名资产 `dsh-anki.tgz`，所以
-`https://github.com/NanoShiki/dsh-anki/releases/latest/download/dsh-anki.tgz`
-永久指向最新正式版；市场收录条目用的就是这个链接。发布新版本只需新建 Release 并附上同名资产，**不需要再向市场提交 PR**。要锁定版本或核对哈希时，用上面的版本化链接。
+**首次同步请留意覆盖方向。** 全量上传会替换云端牌库，全量下载会替换本地牌库，两种操作都需要本人确认。插件会先备份本地牌库和媒体；这份备份只能恢复本地数据。取消同步后，已完成的变更仍可能保留。
 
-**对应源码与许可：** Anki 核心的固定提交源码、锁定的 Rust 依赖源码、构建说明，以及 Python 依赖源码与完整第三方许可文本，随同一 Release 另行提供（`*-corresponding-source.tar.gz`、`*-python-sources.tar.gz`）。普通用户无需下载它们即可安装；安装包内已包含运行时所需的全部许可与声明文本。
+<details>
+<summary><b>数据位置、账号与完整备份</b></summary>
 
-**已装同一包 `@nanoshiki/dsh-anki` 的旧版本：** 等待同步结束 → 禁用插件并等后台 Python 进程退出 → 备份整个数据目录 → 更新同一个包 → 保留 `dataDir` 不变，将旧的 `ankiPackages` / `pythonPath` 覆盖项清空以使用内置核心 → 重新启用，按管理器提示刷新或重启。不迁移、不清空牌库；高级用户主动保留的外部覆盖路径仍会被尊重。
+默认数据目录是 `<profileContext.dir>/data/anki-workspace`。自定义 `dataDir` 时应使用独立目录，避免指向 Anki 桌面版配置。做完整备份时，先禁用插件，等后台 Python 进程退出，再复制整个数据目录，包括牌库、媒体与附属文件。
 
-**从 `@local/dsh-anki` 迁移到 `@nanoshiki/dsh-anki`（一次性）：** 2.0.0 换了包身份，市场/插件管理器会把它当作另一个插件，不能覆盖升级。
+在同步面板输入账号密码。令牌由 Windows 当前用户 DPAPI 或 macOS 登录钥匙串保护，并绑定工作区路径。移动数据后可能需要重新登录。整目录备份包含受保护的账号状态，请私下保存。
 
-1. 等同步结束，禁用旧包并等后台 Python 进程退出；备份整个数据目录。
-2. 记录当前 `dataDir`（默认留空即 `<profileContext.dir>/data/anki-workspace`），然后卸载旧包，**不要删除数据目录**。
-3. 安装新的 `@nanoshiki/dsh-anki`，`dataDir` 保持与原来一致；启用后打开「Anki → 浏览」确认牌组与笔记都在。
-4. 新旧两个包不要同时启用；服务名、AI 工具、面板与牌库路径都没有变化。
+</details>
 
-**从旧包名 `@local/dsh-anki-workspace` 迁移（一次性）：** 改名相当于换了一个新包身份，不能就地覆盖安装。
+<details>
+<summary><b>APKG 交换、删除牌组与模板兼容性</b></summary>
 
-1. 先等待同步结束，在已认证的 DSH **插件管理器**中禁用旧包，并等它的 Python 进程退出；只关闭标签页并不够。**绝不要同时启用新旧两个包**——两者会有意共用同一个服务和牌库。
-2. 记录自定义的 `dataDir`、`ankiPackages`、`pythonPath`，在停用状态下备份整个数据目录。旧包保持禁用，或通过管理器卸载，但**不要删除数据目录**。
-3. 导入 [公开 Release 安装包](https://github.com/NanoShiki/dsh-anki/releases/download/v2.0.0/dsh-anki-2.0.0.tgz)，包名为 `@nanoshiki/dsh-anki`；启用前只把 `dataDir` 填回原值（必须完全一致），`pythonPath` / `ankiPackages` 留空以使用 2.0.0 内置运行时与核心。
-4. 打开「**Anki → 浏览**」确认牌组与笔记仍在。默认数据仍是**同一个 DSH 配置**下的 `<profileContext.dir>/data/anki-workspace`：改名不会搬迁或删除它，AI 工具 `anki` 与侧栏名称也都不变。
-5. **不要把 `dataDir` 指向 Anki 桌面版的配置目录。** 如果安装被拒绝，请保留管理器的错误信息，不要为了「修好」而删除牌库。
+- **导入导出**通过对话中的 `anki` 工具完成。用 `status` 查询目录，将待导入的 `.apkg` 放入 `importsDir`，再提供文件名。导入会合并内容并预先备份牌库；媒体写入无法原子回滚。导出会在 `exportsDir` 新建文件并保留已有文件。
+- **删除牌组**会先预览受影响的子牌组、卡片和孤立笔记，并要求输入完整牌组名。删除普通牌组会删除其中的卡片，删除筛选牌组会将卡片送回原牌组。复习撤销无法恢复已删除的牌组，删除也可能同步到 AnkiWeb。
+- **复杂模板**可在 HTML 源码模式编辑。复习器隔离卡片 HTML，禁用脚本和生成式 LaTeX，不支持桌面 add-ons、自定义复习 JavaScript 或 MathJax。
 
-**验证边界：** 自动化检查覆盖隔离的原生牌库、本地回环同步服务、客户端结构交互，以及合成状态下的真实浏览器布局。它们不能证明某个具体安装、真实 AnkiWeb 账号或云端连接可用。请使用你已认证的插件管理器与 GUI，按它实际提示刷新/重启；不需要替换服务器，也不依赖未经验证的热更新行为。实时验收清单见 [ACCEPTANCE.md](<ACCEPTANCE.md>)，测试记录见 [VERIFICATION.md](<VERIFICATION.md>)。
+</details>
 
-源码仓库：[NanoShiki/dsh-anki](https://github.com/NanoShiki/dsh-anki)。
+<details>
+<summary><b>升级或从旧包名迁移</b></summary>
 
-## 参与贡献
+1. 等同步结束，禁用旧插件并等待后台进程退出。记下原来的 `dataDir` 并备份整个数据目录。
+2. 已使用 `@nanoshiki/dsh-anki` 的用户可直接更新同一个包。若旧包名为 `@local/dsh-anki` 或 `@local/dsh-anki-workspace`，请保持旧包禁用或卸载旧包，保留数据目录，再安装新包。避免同时启用两份插件。
+3. 在同一个 DSH 配置里沿用原来的 `dataDir`。清空旧的 `ankiPackages` 和 `pythonPath` 覆盖项即可使用内置核心。重新启用后，到「浏览」确认笔记和牌组。
 
-**本仓库只接受 Pull Request。** `main` 分支已启用保护：直接 push、强制推送和删除都会被拒绝，仓库所有者也不例外。请从 `main` 拉分支、按 PR 模板提交，并等 `test` 检查通过后合并；流程、本地测试命令与必须保持的不变量见 [CONTRIBUTING.md](<CONTRIBUTING.md>)。
+</details>
 
-## 登录与同步
+## 开发与贡献
 
-- 账号密码**只在仅所有者可见的同步页**输入，不要发到聊天里。密码是临时的，提交后即从表单清除；可复用的登录令牌与设置由 Windows 当前用户 DPAPI 或 macOS 登录钥匙串保护，并额外绑定工作区路径，没有明文降级。换一个系统用户或换路径可能需要重新登录；退出登录会删除已存令牌。本插件不读取其它 Anki 安装的凭据。
-- **立即同步**会先做原生牌库同步、再做原生媒体同步，并显示进度、支持取消。完成时间戳只在两者都成功后才写入。原生任务占用牌库期间其它操作不可用，但状态查询与取消始终保持响应。
-- **自动同步默认开启**，页面上有可见开关。宿主会在启动/登录后、编辑或复习成功后约 15 秒空闲时、以及大约每 5 分钟各调度一次；存在未处理的复习卡片时会推迟，直到作答或离开。离线失败会退避；它不依赖你停留在同步页，客户端计时器只读取状态。
-- **任何全量上传/下载都会停下来等待明确确认。** 页面会显示允许的方向与本地笔记数，并且必须勾选「覆盖警告」。本地库为空且在允许时会推荐下载。确认会过期且只能使用一次；**AI 与自动同步都不能替你确认方向**。
-- 两个全量方向都会先把稳定的**本地牌库、媒体与媒体库**（不含账号凭据）快照到私有的 `backups` 目录。**本地备份救不回被覆盖的云端数据。** 全量上传会替换云端牌库，全量下载会替换本地牌库，请特别在首次登录时谨慎选择。
-- 失败或取消可能留下**部分完成的本地或云端改动**，取消不等于回滚；重试前先查看状态与备份。鉴权被拒会清除已保存的登录；普通的离线/网络失败会保留受保护的令牌。
-- 同步会保留编辑中的草稿，但可能改变它们的版本。版本过期的草稿需要先重新加载笔记再保存；重新加载会丢弃该草稿。后台也会拒绝过期的笔记修订。
+欢迎通过 [Issues](https://github.com/NanoShiki/dsh-anki/issues) 报告问题。反馈界面或同步问题时，请附上系统、DSH 与插件版本以及复现步骤，并隐去账号和私人卡片内容。
 
-## 牌库操作
+代码变更通过 Pull Request 合并到 `main`。本地可先用 Node.js 22+ 运行客户端和同步调度测试：
 
-- 牌组可新建、重命名；支持原生 Anki 笔记类型与搜索语法；可添加/编辑笔记与标签、暂停/恢复卡片。添加笔记默认优先**问答题（输入答案）**，也能识别改名后的输入答案模板；已有的手动选择在刷新后保持不变。若该类型不存在，会优先普通 Basic/问答题而不是图片遮罩；**不会自动新建或重命名任何笔记类型**。
-- 删除牌组：先选中牌组，再点重命名下方的「**删除牌组…**」。仅所有者可用的确认预览会列出受影响的根牌组/子牌组、将要删除的卡片与孤立笔记，以及只是被退回原牌组的筛选牌组卡片；需输入**完整牌组名**确认。**普通牌组删除会删掉它的卡片（包括临时在筛选牌组中的卡片）；删除筛选牌组只是退回卡片。在别处仍有卡片的笔记以及媒体文件会保留。** Anki 的 ID-1 默认牌组、以及包含它的父牌组，不能在这里删除。
-- **需要的话，删除前先导出 APKG 备份。** 删除**不能用复习撤销**恢复；开启自动同步时还可能传播到 AnkiWeb。取消预览不会改变任何东西。确认是一次性的、五分钟后过期，牌组范围变化即拒绝执行；出错后请重新打开预览。同步/全量同步的限制同样适用。本插件不提供单独的「删除笔记」动作。
-- 复习只针对**选定的具体牌组**（含子牌组，遵循原生每日上限），没有全牌组复习器。先显示答案，再选 Again/Hard/Good/Easy。撤销只作用于本后台会话中最近一次可撤销的复习；重启或同步会让临时复习令牌失效，但不会影响已保存的排程。
-- 界面与 AI 共用同一后端。AI 编辑笔记时必须先取回笔记，并把不透明的 `modified` 作为 `expectedModified` 传回，否则会被拒绝。
-- 导入：把 `.apkg` 放进 `status.importsDir`，只传**文件名**；导入前有原生牌库备份，按合并处理。导出：在 `status.exportsDir` 生成新包，**绝不覆盖**已存在的导出文件。
-- 媒体只接受文件名、限制扩展名与类型、单次响应上限 5 MiB。生成的 LaTeX 被禁用；复习器 HTML 禁用脚本并做沙箱隔离。不支持插件（add-ons）、复习器自定义 JavaScript 或 MathJax，复杂模板的显示可能与 Anki 桌面版不同。
+```sh
+npm run test:client
+```
 
-## 权限
+完整开发流程和原生后端测试命令见[贡献指南](CONTRIBUTING.md)。自动化测试的覆盖范围见[验证记录](VERIFICATION.md)，使用真实 DSH 验收的步骤见[验收清单](ACCEPTANCE.md)。
 
-AI 的读取操作（含 `sync.status`）在只读模式下即可工作。**修改、导出、`review.next`、`sync.run` 与 `sync.cancel` 需要 `danger-full-access`**，因为私有牌库位于对话工作区之外。工具既不会主动申请，也不会绕过授权；没有你的明确意图，不要评分或同步。
+## 许可与来源
 
-**删除牌组、登录/退出、设置与全量同步确认不提供任何 AI 动作**，它们走独立的 RPC，且必须由已认证的所有者发起——即便是内部调用也一样。导入的笔记、模板与网页内容一律是不可信数据，不能当作操作指令。
+DSH Anki 是独立集成，与 Anki 官方项目无隶属关系。插件采用 [AGPL-3.0-or-later](LICENSE)。随包组件各自的条款见 [Anki 许可](ANKI-LICENSE.txt)、[Python 许可](runtime/LICENSE.txt)和[第三方声明](THIRD-PARTY-NOTICES.md)。
 
-## 备份
-
-后台进程只打开自己的私有牌库，并持有进程生命周期的系统级锁。**APKG 导入的媒体写入不能原子回滚**，导入前的牌库备份也不等于完整的媒体备份。需要一份独立完整备份时：禁用插件、等后台进程退出，然后复制**整个数据目录**（包含牌库、媒体与附属文件）。**不要只复制一个正在使用的 SQLite 文件。** 整目录副本包含受保护的账号状态，请不要分享；手工迁移后可能需要重新登录。本地并发的文件系统篡改不在本集成的保证范围内。
-
-## 验证与许可
-
-见[验证记录](<VERIFICATION.md>)：覆盖真实核心 + 官方本地同步服务器、DPAPI、传输层、调度器、客户端结构、隔离 Chromium 布局以及真实 Gateway 的检查。测试从不使用桌面版配置或真实 AnkiWeb 账号；合成布局测试**不等于**已认证的生产 UI 验收，也不等于真实云端验收。
-
-插件本身：[AGPL-3.0-or-later](<LICENSE>)。另见 [Anki 上游声明](<ANKI-LICENSE.txt>)、[第三方声明](<THIRD-PARTY-NOTICES.md>) 与 [Python 许可](<runtime/LICENSE.txt>)。子进程边界并不免除许可义务。
+[GitHub Releases](https://github.com/NanoShiki/dsh-anki/releases) 提供安装包校验值、对应源码与构建资料。仓库也提供[核心依赖锁定清单](core-lock.json)和[逐文件校验值](core-sha256.json)。
 
 ## English
 
-Version 2.3.0 adds the activity dashboard, deck management, animated review progress and appearance settings. AnkiWeb synchronization is available beneath the activity heatmap.
+DSH Anki brings flashcard editing, scheduled reviews and an activity dashboard to DeepSeek Harness. The sidebar and the `anki` AI tool share a private collection for each DSH profile. A bundled headless Anki core lets you study offline and optionally sync your collection and media through AnkiWeb.
 
-A native DSH sidebar and an `anki` AI tool sharing **one independent, per-DSH-profile collection**, powered by real headless Anki — no Anki desktop window, AnkiConnect, Qt or replacement web server is started. Independent integration, not an official Anki product. Version 2.0.0 bundles the headless core and its Python dependencies for out-of-the-box installation, retaining the native responsive layout.
+**Install** on Windows x64 or macOS 12+ (Intel and Apple Silicon) with DSH `^0.2.1-rc.2`. Add `@nanoshiki/dsh-anki` in the DSH plugin manager or import the [prebuilt release package](https://github.com/NanoShiki/dsh-anki/releases/latest/download/dsh-anki.tgz). Leave the runtime and data paths empty for a first installation. Open **Anki** in the sidebar and choose **EN** in the top bar.
 
-**Requirements:** Windows x64 or macOS 12+ (Apple Silicon and Intel), and DSH `^0.2.1-rc.2` (verified on **0.2.1-rc.3**; `@deepseek-ai/dsh*` peers are declared as ranges, not exact pins). CPython 3.13.5, official Anki **26.5 / 26.05** headless core and all its Python runtime dependencies are bundled. No separate Anki/Python/pip installation or first-start dependency download is required. Qt is not bundled.
-
-**Install:** From 2.0.1 the package is published to npm as `@nanoshiki/dsh-anki`, so the plugin manager installs it by name and the market can offer version updates. The prebuilt `dsh-anki.tgz` on [the latest release](https://github.com/NanoShiki/dsh-anki/releases/latest) remains available as an offline alternative; both share the same data directory. Leave `ankiPackages` and `pythonPath` empty and use the bundled runtime; explicit absolute overrides remain supported, with no silent external fallback.
-
-**Upgrade:** wait for sync, disable the plugin and let its Python worker exit, back up the whole data directory, then replace the installed package with the new release archive, keeping the data directory unchanged and clearing old `ankiPackages` / `pythonPath` overrides to select the bundled runtime. Version 2.0.0 renames the package to `@nanoshiki/dsh-anki`, so an `@local/dsh-anki` install is a one-time new-package install; migrating from the older `@local/dsh-anki-workspace` identity is likewise one-time. Never enable two copies together, keep the data directory, and never point `dataDir` at an Anki desktop profile.
-
-**Sync:** credentials are entered only on the owner-only Sync page and stored with Windows current-user DPAPI or macOS Keychain, bound to the workspace path, with no plaintext fallback. Manual sync runs native collection sync and then native media sync. Automatic sync is on by default and is scheduled by the host. **Every full upload or download waits for explicit confirmation** with a mandatory overwrite warning; AI and automatic sync can never confirm a direction. Both full directions snapshot the local collection, media and media database first — **a local backup cannot restore overwritten cloud data**. Failed or cancelled sync can leave partially completed changes; cancellation is not rollback.
-
-**Note editing (2.1.0)** supports rich text, lists, inline pasted images and HTML source editing in both Add and Browse. Custom markup opens in source mode to preserve it.
-
-**Operations:** deck create/rename, native note types and search, note/tag editing, card suspension, APKG import and export, and review of a selected deck (including descendants) with Again/Hard/Good/Easy. Deck deletion is owner-only, previews the affected subdecks, cards and orphaned notes, requires the exact full deck name, protects the ID-1 default deck, and cannot be undone by review undo. Media is basename-only and capped at 5 MiB per response; reviewer HTML is script-disabled and sandboxed, and add-ons/custom reviewer JavaScript/MathJax are unsupported.
-
-**Permissions:** AI reads work in read-only mode; mutations, exports, `review.next`, `sync.run` and `sync.cancel` require `danger-full-access`, because the private collection lives outside the conversation workspace. Deck deletion, login/logout, settings and full-sync confirmation expose no AI action at all and require an authenticated owner. Imported notes, templates and page content are untrusted data, never instructions.
-
-**Backups:** disable the plugin, wait for its worker to exit, then copy the entire data directory — not a live SQLite file. Import media writes are not atomically rolled back. A whole-directory copy includes protected account state; do not share it.
-
-**Verification:** automated checks cover isolated native collections, localhost sync services, DPAPI, transport, scheduling, structural client behavior and an isolated Chromium layout fixture. They do not establish that a particular live installation, real AnkiWeb account or cloud connection works. Use your existing authenticated plugin manager and GUI; no replacement server is required. See the [acceptance checklist](<ACCEPTANCE.md>) and [verification record](<VERIFICATION.md>). Licensed [AGPL-3.0-or-later](<LICENSE>), with the [Anki upstream notice](<ANKI-LICENSE.txt>), [third-party notices](<THIRD-PARTY-NOTICES.md>) and [Python license](<runtime/LICENSE.txt>).
-
-**Contributing:** changes are accepted **only through pull requests**; `main` is protected against direct pushes, force pushes and deletion, including for the owner. See [CONTRIBUTING.md](<CONTRIBUTING.md>).
+**Upgrading** from either legacy `@local` package? Wait for sync, disable the old plugin, let its worker exit and back up the whole data directory. Keep the same directory when enabling the new package. Full uploads replace the cloud collection and full downloads replace the local collection. Both require confirmation in the UI.
